@@ -16,7 +16,9 @@ export default {
       workspace_id: '', 
       name: '', 
       color: '', 
-      editId: '' 
+      editId: '', 
+      loading: false, 
+      error: '' 
     }
   },
   
@@ -29,10 +31,20 @@ export default {
      * 获取标签列表
      */
     async fetch() { 
-      const res = await apiGet('/tags')
-      if (res.statusCode === 200) {
-        this.tags = res.data.data || [] 
-      }
+      this.loading = true
+      this.error = ''
+      try {
+        const res = await apiGet('/tags/')
+        if (res.statusCode === 200) {
+          this.tags = res.data.data || [] 
+        } else {
+          this.error = res?.data?.message || '加载失败'
+        }
+      } catch (err) {
+        this.error = '网络错误'
+      } finally {
+        this.loading = false
+      } 
     },
     
     /**
@@ -41,7 +53,7 @@ export default {
      */
     async createTag() { 
       if (this.editId) { 
-        const r = await apiPut(`/tags/${this.editId}`, { 
+        const r = await apiPut(`/tags/${this.editId}/`, { 
           name: this.name, 
           color: this.color 
         })
@@ -57,7 +69,7 @@ export default {
         return 
       }
       
-      const res = await apiPost('/tags', { 
+      const res = await apiPost('/tags/', { 
         workspace_id: this.workspace_id, 
         name: this.name, 
         color: this.color 
@@ -98,7 +110,7 @@ export default {
      * @param {string} id - 标签ID
      */
     async remove(id) { 
-      const res = await apiDelete(`/tags/${id}`, {})
+      const res = await apiDelete(`/tags/${id}/`, {})
       if (res.statusCode === 200) {
         this.fetch() 
       }

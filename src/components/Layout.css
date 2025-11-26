@@ -127,6 +127,12 @@
   color: #fff;
   border-radius: 8rpx;
 }
+.btn-secondary {
+  background: #4b5563;
+}
+.status-text.muted {
+  color: #999;
+}
 
 .content-body {
   padding: 24rpx;

@@ -35,7 +35,7 @@ export default {
         return 
       } 
       
-      const res = await apiGet('/comments', { 
+      const res = await apiGet('/comments/', { 
         resource_type: this.resource_type, 
         resource_id: this.resource_id 
       })

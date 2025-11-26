@@ -45,9 +45,11 @@
       <view class="topbar">
         <text class="topbar-title">{{ pageTitle || '仪表盘' }}</text>
         <view class="topbar-status">
-          <text class="status-text">状态: Ready</text>
-          <navigator url="/pages/auth/login" class="action-link">登录</navigator>
-          <navigator url="/pages/auth/register" class="action-link">注册</navigator>
+          <text class="status-text">{{ authed ? '已登录' : '未登录' }}</text>
+          <text v-if="authed" class="status-text muted">ID: {{ userId || '未知' }}</text>
+          <navigator v-if="!authed" url="/pages/auth/login" class="action-link">登录</navigator>
+          <navigator v-if="!authed" url="/pages/auth/register" class="action-link">注册</navigator>
+          <button v-else class="action-link btn-secondary" @click="logout">退出</button>
         </view>
       </view>
 

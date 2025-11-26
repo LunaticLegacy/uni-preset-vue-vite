@@ -85,6 +85,16 @@
   border-radius: 8rpx; 
 }
 
+.list-state { 
+  padding: 20rpx; 
+  text-align: center; 
+  color: #6b7280; 
+}
+
+.list-state.error { 
+  color: #ef4444; 
+}
+
 @media (max-width: 640px) { 
   .tag-grid { 
     grid-template-columns: repeat(2, 1fr); 

@@ -50,3 +50,38 @@ export function setUserId(id) {
     uni.setStorageSync('user_id', id || '') 
   } catch (e) {}
 }
+
+/**
+ * 清除用户ID
+ */
+export function clearUserId() {
+  try { 
+    uni.removeStorageSync('user_id') 
+  } catch (e) {}
+}
+
+/**
+ * 当前工作空间上下文（id/name）
+ */
+const WORKSPACE_KEY = 'current_workspace'
+
+export function setCurrentWorkspace(workspace) {
+  try {
+    const payload = workspace ? { id: workspace.id || '', name: workspace.name || '' } : null
+    uni.setStorageSync(WORKSPACE_KEY, payload)
+  } catch (e) {}
+}
+
+export function getCurrentWorkspace() {
+  try {
+    return uni.getStorageSync(WORKSPACE_KEY) || null
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearCurrentWorkspace() {
+  try {
+    uni.removeStorageSync(WORKSPACE_KEY)
+  } catch (e) {}
+}

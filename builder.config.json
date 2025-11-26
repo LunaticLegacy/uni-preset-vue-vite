@@ -1,6 +1,6 @@
 {
   "command": "npm run dev:h5",
-  "serverUrl": "https://localhost:4096",
+  "serverUrl": "https://localhost:8000",
   "authenticateProxy": false,
   "commitMode": "commits"
 }

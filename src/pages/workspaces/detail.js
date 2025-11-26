@@ -23,7 +23,7 @@ export default {
    */
   async onLoad(q) { 
     this.id = q.id
-    const res = await apiGet(`/workspaces/${this.id}`)
+    const res = await apiGet(`/workspaces/${this.id}/`)
     if (res.statusCode === 200) {
       this.workspace = res.data.data 
     }
@@ -34,7 +34,7 @@ export default {
      * 保存工作空间信息
      */
     async save() { 
-      const res = await apiPut(`/workspaces/${this.id}`, { 
+      const res = await apiPut(`/workspaces/${this.id}/`, { 
         name: this.workspace.name, 
         description: this.workspace.description 
       })

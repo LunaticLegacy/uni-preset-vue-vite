@@ -19,7 +19,7 @@ export default {
   },
   methods: {
     async fetch() {
-       const res = await apiGet('/attachments'); 
+       const res = await apiGet('/attachments/'); 
        if (res.statusCode === 200) {
         this.attachments = res.data.data || [] 
       }
@@ -31,14 +31,15 @@ export default {
         return
       } 
       const res = await apiPost(
-        '/attachments', 
+        '/attachments/', 
         {
-          attached_to_type:this.attached_to_type, 
-          attached_to_id:this.attached_to_id, 
-          file_name:this.file_name, 
-          storage_key:this.storage_key, 
-          content_type:this.content_type, 
-          file_size:this.file_size || 0
+          time: new Date().toISOString(),
+          attached_to_type: this.attached_to_type, 
+          attached_to_id: this.attached_to_id, 
+          file_name: this.file_name, 
+          storage_key: this.storage_key, 
+          content_type: this.content_type, 
+          file_size: this.file_size || 0
         }
       ); 
       if (res.statusCode === 200 ){

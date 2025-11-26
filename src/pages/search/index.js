@@ -32,14 +32,14 @@ export default {
       }
       
       if (this.tab === 'tasks') { 
-        const r = await apiGet('/search/tasks', { 
+        const r = await apiGet('/search/tasks/', { 
           query: this.query 
         })
         if (r.statusCode === 200) {
           this.taskResults = r.data.data || [] 
         }
       } else { 
-        const r = await apiGet('/search/projects', { 
+        const r = await apiGet('/search/projects/', { 
           query: this.query 
         })
         if (r.statusCode === 200) {

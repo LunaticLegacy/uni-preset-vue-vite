@@ -25,7 +25,7 @@ export default {
      * 获取通知列表
      */
     async fetch() { 
-      const res = await apiGet('/notifications')
+      const res = await apiGet('/notifications/')
       if (res.statusCode === 200) {
         this.notifications = res.data.data || [] 
       }
@@ -36,7 +36,7 @@ export default {
      * @param {string} id - 通知ID
      */
     async markRead(id) { 
-      const res = await apiPut(`/notifications/${id}/read`, {})
+      const res = await apiPut(`/notifications/${id}/read/`, {})
       if (res.statusCode === 200) {
         this.fetch() 
       }

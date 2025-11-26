@@ -23,7 +23,7 @@ export default {
    */
   async onLoad(q) { 
     this.id = q.id
-    const res = await apiGet(`/tasks/${this.id}`)
+    const res = await apiGet(`/tasks/${this.id}/`)
     if (res.statusCode === 200) {
       this.task = res.data.data 
     }

@@ -15,6 +15,8 @@
 .workspace-actions { display: flex; gap: 8rpx; margin-top: 12rpx }
 .btn-ghost { background: transparent; border: 1rpx solid #e6e9ee; padding: 8rpx 10rpx; border-radius: 8rpx }
 .btn-danger { background: #ef4444; color: #fff; padding: 8rpx 10rpx; border-radius: 8rpx }
+.list-state { padding: 20rpx; text-align: center; color: #6b7280 }
+.list-state.error { color: #ef4444 }
 
 @media (max-width: 640px) { 
   .grid { grid-template-columns: repeat(1, 1fr) } 
