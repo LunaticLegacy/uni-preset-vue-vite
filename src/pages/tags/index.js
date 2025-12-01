@@ -1,14 +1,12 @@
 import { apiGet, apiPost, apiPut, apiDelete } from '../../services/http.js'
+import { getCurrentWorkspace, getUserId } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
- * 标签管理页面
- * 支持标签的创建、编辑、查看和删除功能
+ * 标签管理：创建、编辑、列表
  */
 export default {
-  components: { 
-    Layout 
-  },
+  components: { Layout },
   
   data() {
     return { 
@@ -23,6 +21,8 @@ export default {
   },
   
   onShow() { 
+    const ws = getCurrentWorkspace()
+    this.workspace_id = ws?.id || ''
     this.fetch() 
   },
   
@@ -34,7 +34,7 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        const res = await apiGet('/tags/')
+        const res = await apiGet('/tags/', this.workspace_id ? { workspace_id: this.workspace_id } : undefined)
         if (res.statusCode === 200) {
           this.tags = res.data.data || [] 
         } else {
@@ -52,6 +52,15 @@ export default {
      * 如果处于编辑状态则更新标签，否则创建新标签
      */
     async createTag() { 
+      if (!this.workspace_id) {
+        uni.showToast({ title: '请先选择工作空间', icon: 'none' })
+        return
+      }
+      if (!this.name) {
+        uni.showToast({ title: '请输入标签名称', icon: 'none' })
+        return
+      }
+
       if (this.editId) { 
         const r = await apiPut(`/tags/${this.editId}/`, { 
           name: this.name, 
@@ -71,6 +80,7 @@ export default {
       
       const res = await apiPost('/tags/', { 
         workspace_id: this.workspace_id, 
+        user_id: getUserId(),
         name: this.name, 
         color: this.color 
       })
@@ -99,8 +109,9 @@ export default {
      * 重置表单
      */
     reset() { 
+      const ws = getCurrentWorkspace()
       this.editId = ''
-      this.workspace_id = ''
+      this.workspace_id = ws?.id || ''
       this.name = ''
       this.color = '' 
     },

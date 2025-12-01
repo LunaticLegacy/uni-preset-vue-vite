@@ -1,10 +1,9 @@
 import { apiGet, apiPost, apiPut, apiDelete } from '../../services/http.js'
-import { setCurrentWorkspace } from '../../utils/storage.js'
+import { getToken, setCurrentWorkspace } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
- * 工作空间管理页面
- * 显示工作空间列表，支持创建、编辑、选择和删除
+ * 工作空间管理页：列出、创建、编辑、切换、删除
  */
 export default {
   components: { Layout },
@@ -32,7 +31,7 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        const res = await apiGet('/workspaces', null, { trailing: false })
+        const res = await apiGet('/workspaces/')
         if (res.statusCode === 200) {
           this.workspaces = res.data.data || []
         } else {
@@ -59,12 +58,14 @@ export default {
 
       const payload = {
         name: this.name,
-        description: this.description
+        description: this.description,
+        time: new Date().toISOString(),
+        token: getToken()
       }
 
       const res = this._editIdWorkspaceId
-        ? await apiPut(`/workspaces/${this._editIdWorkspaceId}/`, payload, { trailing: false })
-        : await apiPost('/workspaces/', payload, { trailing: false })
+        ? await apiPut(`/workspaces/${this._editIdWorkspaceId}/`, payload)
+        : await apiPost('/workspaces/', payload)
 
       this.name = ''
       this.description = ''
@@ -100,7 +101,7 @@ export default {
      */
     chooseWorkspace(w) {
       setCurrentWorkspace({ id: w.id, name: w.name })
-      uni.showToast({ title: `已选择：${w.name}`, icon: 'success' })
+      uni.showToast({ title: `已选择${w.name}`, icon: 'success' })
       uni.navigateTo({ url: '/pages/projects/index' })
     },
 
@@ -109,7 +110,7 @@ export default {
      * @param {string} id - 工作空间ID
      */
     async remove(id) {
-      const res = await apiDelete(`/workspaces/${id}`, {}, { trailing: false })
+      const res = await apiDelete(`/workspaces/${id}/`, {})
       if (res.statusCode === 200) {
         uni.showToast({
           title: '已删除',

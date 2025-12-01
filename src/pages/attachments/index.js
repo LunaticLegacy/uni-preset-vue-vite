@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiDelete } from '../../services/http.js'
+import { getUserId } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 export default {
@@ -19,7 +20,7 @@ export default {
   },
   methods: {
     async fetch() {
-       const res = await apiGet('/attachments/'); 
+       const res = await apiGet('/attachments/', this.attached_to_id ? { attached_to_type: this.attached_to_type, attached_to_id: this.attached_to_id } : undefined); 
        if (res.statusCode === 200) {
         this.attachments = res.data.data || [] 
       }
@@ -33,13 +34,15 @@ export default {
       const res = await apiPost(
         '/attachments/', 
         {
-          time: new Date().toISOString(),
+          owner_id: getUserId(),
           attached_to_type: this.attached_to_type, 
           attached_to_id: this.attached_to_id, 
           file_name: this.file_name, 
-          storage_key: this.storage_key, 
+          file_size: this.file_size || 0,
           content_type: this.content_type, 
-          file_size: this.file_size || 0
+          storage_key: this.storage_key, 
+          attachment_type: 'file',
+          metadata: {}
         }
       ); 
       if (res.statusCode === 200 ){
@@ -50,7 +53,7 @@ export default {
     },
 
     async remove(id) { 
-      const res = await apiDelete(`/attachments/${id}`, {}); 
+      const res = await apiDelete(`/attachments/${id}/`, {}); 
       if (res.statusCode === 200) this.fetch() 
     },
     previewUrl(a) { return a.storage_key },

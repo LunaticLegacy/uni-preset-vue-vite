@@ -2,13 +2,10 @@ import { apiGet, apiPut } from '../../services/http.js'
 import Layout from '../../components/Layout.vue'
 
 /**
- * 任务详情页面
- * 显示和编辑任务详细信息
+ * 任务详情：查看、编辑标题/描述/状态/指派
  */
 export default { 
-  components: { 
-    Layout 
-  }, 
+  components: { Layout }, 
   
   data() {
     return { 
@@ -32,15 +29,14 @@ export default {
   methods: { 
     /**
      * 保存任务信息
-     * 将修改后的任务信息保存到服务器
      */
     async save() { 
       const { title, description, status, assignee_id } = this.task
-      const res = await apiPut(`/tasks/${this.id}`, { 
-        title, 
-        description, 
-        status, 
-        assignee_id 
+      const res = await apiPut(`/tasks/${this.id}/`, { 
+        title: title, 
+        description: description, 
+        status: status, 
+        assignee_id: assignee_id
       })
       
       if (res.statusCode === 200) { 

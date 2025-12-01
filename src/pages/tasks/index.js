@@ -1,10 +1,9 @@
 import { apiGet, apiPost } from '../../services/http.js'
-import { getCurrentWorkspace } from '../../utils/storage.js'
+import { getCurrentWorkspace, getUserId } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
- * 任务管理页面
- * 显示任务列表，支持创建新任务和查看详情
+ * 任务列表页：按工作空间列出任务，可创建和查看详情
  */
 export default {
   components: { Layout },
@@ -45,7 +44,7 @@ export default {
         return
       }
       try {
-        const res = await apiGet('/tasks', { workspace_id: this.workspace.id }, { trailing: false })
+        const res = await apiGet('/tasks/', { workspace_id: this.workspace.id })
         if (res.statusCode === 200) {
           this.tasks = res.data.data || [] 
         } else {
@@ -83,13 +82,17 @@ export default {
         return 
       }
       
-      const res = await apiPost('/tasks', { 
+      const res = await apiPost('/tasks/', { 
         workspace_id: this.workspace.id,
+        creator_id: getUserId(),
         project_id: this.project_id, 
         title: this.title, 
         description: this.description, 
-        priority: this.priority || 'medium' 
-      }, { trailing: false })
+        assignee_id: getUserId(),
+        priority: this.priority || 'medium',
+        estimated_minutes: 0,
+        due_at: null
+      })
       
       if (res.statusCode === 200) { 
         this.project_id = ''

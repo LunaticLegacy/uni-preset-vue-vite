@@ -37,8 +37,9 @@ export default {
       try {
         const res = await apiPost('/user/login/', { 
           email: this.email, 
-          password: this.password 
-        }, { auth: false, trailing: false })
+          password: this.password,
+          token: null
+        }, { auth: false })
         
         if (res.statusCode === 200 && res.data.status === 'success') {
           setToken(res.data.token)

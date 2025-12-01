@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiPut, apiDelete } from '../../services/http.js'
+import { getUserId } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
@@ -59,7 +60,7 @@ export default {
       }
       
       if (this.editId) { 
-        const r = await apiPut(`/comments/${this.editId}`, { 
+        const r = await apiPut(`/comments/${this.editId}/`, { 
           content: this.content 
         })
         
@@ -74,10 +75,12 @@ export default {
         return 
       }
       
-      const res = await apiPost('/comments', { 
+      const res = await apiPost('/comments/', { 
         resource_type: this.resource_type, 
         resource_id: this.resource_id, 
-        content: this.content 
+        user_id: getUserId(),
+        content: this.content,
+        reply_to_comment_id: null 
       })
       
       if (res.statusCode === 200) { 
@@ -112,7 +115,7 @@ export default {
      * @param {string} id - 评论ID
      */
     async remove(id) { 
-      const res = await apiDelete(`/comments/${id}`, {})
+      const res = await apiDelete(`/comments/${id}/`, {})
       if (res.statusCode === 200) {
         this.fetch() 
       }

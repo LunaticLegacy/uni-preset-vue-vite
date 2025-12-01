@@ -35,11 +35,10 @@ export default {
       
       try {
         const res = await apiPost('/user/register/', { 
-          time: new Date().toISOString(),
           username: this.username, 
           password: this.password,
           email: this.email,
-          token: null,
+          token: null
         }, { auth: false })
         
         if (res.statusCode === 200 && res.data.status === 'success') {

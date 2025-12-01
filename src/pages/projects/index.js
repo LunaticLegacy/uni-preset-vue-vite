@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from '../../services/http.js'
-import { getCurrentWorkspace } from '../../utils/storage.js'
+import { getCurrentWorkspace, getUserId } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 export default {
@@ -31,7 +31,7 @@ export default {
         return
       }
       try {
-        const res = await apiGet('/projects/', { workspace_id: this.workspace.id }, { trailing: false })
+        const res = await apiGet('/projects/', { workspace_id: this.workspace.id })
         if (res.statusCode === 200) {
           this.projects = res.data.data || []
         } else {
@@ -53,11 +53,15 @@ export default {
         uni.showToast({ title: '请填写必要信息', icon: 'none' })
         return
       }
+
       const res = await apiPost('/projects/', {
         workspace_id: this.workspace.id,
+        owner_id: getUserId(),
         title: this.title,
-        description: this.description
-      }, { trailing: false })
+        description: this.description,
+        start_date: null,
+        due_date: null
+      })
       if (res.statusCode === 200) {
         this.title = ''
         this.description = ''
