@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from '../../services/http.js'
-import { getCurrentWorkspace, getUserId } from '../../utils/storage.js'
+import { getCurrentWorkspace, getUserId, getToken } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 export default {
@@ -31,14 +31,18 @@ export default {
         return
       }
       try {
-        const res = await apiGet('/projects/', { workspace_id: this.workspace.id })
+        const res = await apiPost('/projects/list', { 
+          workspace_id: this.workspace.id,
+          time: new Date().toISOString(),
+          token: getToken()
+        })
         if (res.statusCode === 200) {
           this.projects = res.data.data || []
         } else {
           this.error = res?.data?.message || '加载失败'
         }
       } catch (e) {
-        this.error = '网络错误'
+        this.error = e
       } finally {
         this.loading = false
       }
@@ -73,5 +77,39 @@ export default {
     openDetail(id) {
       uni.navigateTo({ url: `/pages/projects/detail?id=${id}` })
     },
+
+    /**
+     * 保存项目信息
+     * 将修改后的项目信息保存到服务器
+     */
+    async save() { 
+      const res = await apiPost(`/projects/${id}/update/`, { 
+        title: this.project.title, 
+        description: this.project.description 
+      })
+      
+      if (res.statusCode === 200) { 
+        uni.showToast({ 
+          title: '已保存', 
+          icon: 'success' 
+        }) 
+      } 
+    },
+
+    async remove() {
+      const res = await apiPost(`/projects/${id}/delete`,
+        {
+          title: this.project.title, 
+          description: this.project.description 
+        }
+      )
+
+      if (res.statusCode === 200) { 
+        uni.showToast({ 
+          title: '删除成功', 
+          icon: 'success' 
+        }) 
+      } 
+    }
   }
 }

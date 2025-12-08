@@ -35,6 +35,7 @@ export default {
       
       try {
         const res = await apiPost('/user/register/', { 
+          time: new Date().toISOString(),
           username: this.username, 
           password: this.password,
           email: this.email,

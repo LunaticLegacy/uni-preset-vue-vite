@@ -31,7 +31,13 @@ export default {
       this.loading = true
       this.error = ''
       try {
-        const res = await apiGet('/workspaces/')
+        const payload = {
+          time: new Date().toISOString(),
+          token: getToken()
+        }
+        // 获取用户名下工作空间
+        const res = await apiPost('/workspaces/list', payload)
+
         if (res.statusCode === 200) {
           this.workspaces = res.data.data || []
         } else {
@@ -63,9 +69,8 @@ export default {
         token: getToken()
       }
 
-      const res = this._editIdWorkspaceId
-        ? await apiPut(`/workspaces/${this._editIdWorkspaceId}/`, payload)
-        : await apiPost('/workspaces/', payload)
+      // 
+      const res = await apiPost('/workspaces/create', payload)    // 创建工作空间
 
       this.name = ''
       this.description = ''

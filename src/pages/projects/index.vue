@@ -19,8 +19,13 @@
           <view v-else-if="projects.length === 0" class="list-state">暂无数据</view>
           <view v-else class="grid">
             <view class="project-card" v-for="p in projects" :key="p.id" @click="openDetail(p.id)">
-              <text class="project-title">{{ p.title }}</text>
+              <text class="project-title">{{ p.title }}<br></text>
               <text class="project-sub">{{ p.description }}</text>
+            </view>
+            <view class="workspace-actions">
+              <button class="btn-ghost" @click.stop="edit(p)">编辑</button>
+              <button class="btn-primary" @click.stop="chooseproject(p)">进入项目</button>
+              <button class="btn-danger" @click.stop="remove(p.id)">删除</button>
             </view>
           </view>
         </view>

@@ -18,7 +18,7 @@
           <view v-else class="grid">
             <view class="workspace-card" v-for="w in workspaces" :key="w.id">
               <view class="workspace-main" @click="openDetail(w.id)">
-                <text class="workspace-title">{{ w.name }}</text>
+                <text class="workspace-title">{{ w.name }}<br></text>
                 <text class="workspace-sub">{{ w.description }}</text>
               </view>
               <view class="workspace-actions">

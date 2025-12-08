@@ -36,6 +36,8 @@ export default {
       
       try {
         const res = await apiPost('/user/login/', { 
+          time: new Date().toISOString(),
+          token: null,
           email: this.email, 
           password: this.password,
           token: null

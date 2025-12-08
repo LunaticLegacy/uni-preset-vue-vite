@@ -23,7 +23,7 @@ export default {
    */
   async onLoad(q) { 
     this.id = q.id
-    const res = await apiGet(`/projects/${this.id}/`)
+    const res = await apiPost(`/projects/${this.id}/get/`)
     if (res.statusCode === 200) {
       this.project = res.data.data 
     }
@@ -35,7 +35,7 @@ export default {
      * 将修改后的项目信息保存到服务器
      */
     async save() { 
-      const res = await apiPut(`/projects/${this.id}/`, { 
+      const res = await apiPost(`/projects/${this.id}/update/`, { 
         title: this.project.title, 
         description: this.project.description 
       })

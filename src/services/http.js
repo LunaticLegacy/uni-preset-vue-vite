@@ -49,7 +49,8 @@ function baseBody() {
  * @param {number} options.retries - 失败重试次数
  * @returns {Promise} 请求Promise
  */
-export function request({ method = 'GET', path, data = null, params = null, headers = {}, auth = true, retries = 1, trailing = true }) {
+export function request({ method = 'GET', path, data = null, params = null, headers = {}, auth = false, retries = 1, trailing = true }) 
+{
   const url = buildUrl(path, params, { trailing })
   const token = getToken()
   const header = { 
@@ -97,11 +98,14 @@ export function request({ method = 'GET', path, data = null, params = null, head
  * @param {Object} params - URL参数
  * @returns {Promise} 请求Promise
  */
-export function apiGet(path, params, options = {}) {
-  return request({ 
+export function apiGet(path, payload, options = {}) {
+return request({ 
     method: 'GET', 
     path, 
-    params, 
+    data: { 
+      ...baseBody(), 
+      ...(payload || {}) 
+    }, 
     ...options 
   })
 }
