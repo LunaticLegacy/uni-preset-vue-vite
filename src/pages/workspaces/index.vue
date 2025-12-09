@@ -7,7 +7,7 @@
           <view class="header-actions">
             <input class="input-sm" v-model="name" placeholder="名称" />
             <input class="input-sm" v-model="description" placeholder="描述" />
-            <button class="btn-primary" @click="createWorkspace">新建</button>
+            <button class="btn btn-primary" @click="createWorkspace">新建</button>
           </view>
         </view>
 
@@ -22,9 +22,9 @@
                 <text class="workspace-sub">{{ w.description }}</text>
               </view>
               <view class="workspace-actions">
-                <button class="btn-ghost" @click.stop="edit(w)">编辑</button>
-                <button class="btn-primary" @click.stop="chooseWorkspace(w)">进入项目</button>
-                <button class="btn-danger" @click.stop="remove(w.id)">删除</button>
+                <button class="btn btn-secondary" @click.stop="edit(w)">编辑</button>
+                <button class="btn btn-primary" @click.stop="chooseWorkspace(w)">进入工作空间</button>
+                <button class="btn btn-danger" @click.stop="remove(w.id)">删除</button>
               </view>
             </view>
           </view>

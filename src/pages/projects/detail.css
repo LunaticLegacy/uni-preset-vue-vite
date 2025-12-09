@@ -31,6 +31,7 @@
   font-size: 24rpx; 
   color: #374151; 
   margin-bottom: 6rpx; 
+  display: block;
 }
 
 .input-control { 
@@ -38,12 +39,105 @@
   padding: 12rpx; 
   border-radius: 8rpx; 
   border: 1rpx solid #e6e9ee; 
+  box-sizing: border-box;
 }
 
-.btn-primary { 
-  margin-top: 12rpx; 
-  background: #2563eb; 
-  color: #fff; 
-  padding: 12rpx; 
-  border-radius: 8rpx; 
+.section-title {
+  font-size: 26rpx;
+  color: #111827;
+  margin: 20rpx 0 10rpx 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.task-list {
+  max-height: 300rpx;
+  overflow-y: auto;
+  margin-bottom: 20rpx;
+}
+
+.task-item {
+  padding: 12rpx;
+  border-bottom: 1rpx solid #f1f5f9;
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-title {
+  font-size: 24rpx;
+  color: #374151;
+}
+
+.task-status {
+  font-size: 20rpx;
+  color: #6b7280;
+  background-color: #f3f4f6;
+  padding: 2rpx 10rpx;
+  border-radius: 4rpx;
+}
+
+.empty-task {
+  text-align: center;
+  color: #6b7280;
+  padding: 20rpx;
+  font-size: 24rpx;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+/* 阿里云风格按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1.5715;
+  padding: 5px 15px;
+  height: 32px;
+  cursor: pointer;
+  transition: all .3s cubic-bezier(.645,.045,.355,1);
+  outline: none;
+  border: 1px solid transparent;
+  position: relative;
+  box-sizing: border-box;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.btn-primary {
+  background: #0070cc;
+  color: #fff;
+  border-color: #0070cc;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.016);
+}
+
+.btn-primary:hover {
+  background: #0066bb;
+  border-color: #0066bb;
+}
+
+.btn-primary:active {
+  background: #005599;
+  border-color: #005599;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #555;
+  border-color: #ddd;
+}
+
+.btn-secondary:hover {
+  background: #fafafa;
+  border-color: #ccc;
+}
+
+.btn-secondary:active {
+  background: #f5f5f5;
+  border-color: #bbb;
 }

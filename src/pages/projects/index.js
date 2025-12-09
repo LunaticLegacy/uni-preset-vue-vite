@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from '../../services/http.js'
+import { apiDelete, apiGet, apiPost } from '../../services/http.js'
 import { getCurrentWorkspace, getUserId, getToken } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
@@ -58,7 +58,7 @@ export default {
         return
       }
 
-      const res = await apiPost('/projects/', {
+      const res = await apiPost('/projects/create', {
         workspace_id: this.workspace.id,
         owner_id: getUserId(),
         title: this.title,
@@ -79,36 +79,34 @@ export default {
     },
 
     /**
-     * 保存项目信息
-     * 将修改后的项目信息保存到服务器
+     * 编辑项目信息
+     * @param {Object} project - 项目对象
      */
-    async save() { 
-      const res = await apiPost(`/projects/${id}/update/`, { 
-        title: this.project.title, 
-        description: this.project.description 
-      })
-      
-      if (res.statusCode === 200) { 
-        uni.showToast({ 
-          title: '已保存', 
-          icon: 'success' 
-        }) 
-      } 
+    edit(project) {
+      // 这里可以添加编辑项目的逻辑
+      console.log('编辑项目:', project)
+      uni.showToast({ title: '编辑功能待实现', icon: 'none' })
     },
 
-    async remove() {
-      const res = await apiPost(`/projects/${id}/delete`,
-        {
-          title: this.project.title, 
-          description: this.project.description 
-        }
-      )
-
+    /**
+     * 删除项目
+     * @param {string} id - 项目ID
+     */
+    async remove(id) {
+      const res = await apiDelete(`/projects/${id}/delete`, {})
+      
       if (res.statusCode === 200) { 
         uni.showToast({ 
           title: '删除成功', 
           icon: 'success' 
-        }) 
+        })
+        // 重新获取项目列表
+        this.fetch()
+      } else {
+        uni.showToast({ 
+          title: '删除失败', 
+          icon: 'none' 
+        })
       } 
     }
   }

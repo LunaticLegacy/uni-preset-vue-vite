@@ -85,3 +85,31 @@ export function clearCurrentWorkspace() {
     uni.removeStorageSync(WORKSPACE_KEY)
   } catch (e) {}
 }
+
+
+/**
+ * 当前任务上下文
+ */
+const PROJECT_KEY = 'current_project'
+
+export function setProjectId(project) {
+  try {
+    const payload = project ? {id: project.id || '', name: project.name || ''} : null
+    uni.setStorageSync(PROJECT_KEY, payload)
+  } catch (e) { }
+}
+
+export function getProjectId() {
+  try {
+    return uni.getStorageSync(PROJECT_KEY) || null
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearProjectId() {
+  try {
+    uni.removeStorageSync(PROJECT_KEY)
+  } catch (e) {}
+}
+

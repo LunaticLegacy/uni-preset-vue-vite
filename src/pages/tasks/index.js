@@ -1,5 +1,5 @@
 import { apiGet, apiPost } from '../../services/http.js'
-import { getCurrentWorkspace, getUserId } from '../../utils/storage.js'
+import { getCurrentWorkspace, getProjectId, getUserId, getToken } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
@@ -44,7 +44,12 @@ export default {
         return
       }
       try {
-        const res = await apiGet('/tasks/', { workspace_id: this.workspace.id })
+        const res = await apiPost('/tasks/list', {
+           time: new Date().toISOString(),
+           token: getToken(),
+           workspace_id: this.workspace.id,
+           project_id: getProjectId()
+        })
         if (res.statusCode === 200) {
           this.tasks = res.data.data || [] 
         } else {
@@ -82,10 +87,10 @@ export default {
         return 
       }
       
-      const res = await apiPost('/tasks/', { 
-        workspace_id: this.workspace.id,
-        creator_id: getUserId(),
+      const res = await apiPost('/tasks/create', { 
         project_id: this.project_id, 
+        workspace_id: this.workspace.id,
+        creator_id: getUserId(), 
         title: this.title, 
         description: this.description, 
         assignee_id: getUserId(),
