@@ -23,7 +23,7 @@
               <text class="project-sub">{{ p.description }}</text>
               <view class="workspace-actions">
                 <button class="btn btn-secondary" @click.stop="edit(p)">编辑</button>
-                <button class="btn btn-primary" @click.stop="openDetail(p.id)">进入项目</button>
+                <button class="btn btn-primary" @click.stop="chooseProject(p)">进入项目</button>
                 <button class="btn btn-danger" @click.stop="remove(p.id)">删除</button>
               </view>
             </view>

@@ -102,12 +102,12 @@ export default {
     },
 
     /**
-     * 选择工作空间并跳转项目列表
+     * 选择工作空间并跳转到工作空间详情
      */
     chooseWorkspace(w) {
       setCurrentWorkspace({ id: w.id, name: w.name })
-      uni.showToast({ title: `已选择${w.name}`, icon: 'success' })
-      uni.navigateTo({ url: '/pages/projects/index' })
+      uni.showToast({ title: `已进入工作空间：${w.name}`, icon: 'success' })
+      uni.navigateTo({ url: `/pages/projects/index` })
     },
 
     /**

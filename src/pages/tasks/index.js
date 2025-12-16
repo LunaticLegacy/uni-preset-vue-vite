@@ -48,7 +48,7 @@ export default {
            time: new Date().toISOString(),
            token: getToken(),
            workspace_id: this.workspace.id,
-           project_id: getProjectId()
+           project_id: getProjectId().id,
         })
         if (res.statusCode === 200) {
           this.tasks = res.data.data || [] 

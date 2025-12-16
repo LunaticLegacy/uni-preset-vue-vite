@@ -23,7 +23,7 @@ export default {
    */
   async onLoad(q) { 
     this.id = q.id
-    const res = await apiGet(`/workspaces/${this.id}/`)
+    const res = await apiPost(`/workspaces/${this.id}/`)
     if (res.statusCode === 200) {
       this.workspace = res.data.data 
     }

@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost } from '../../services/http.js'
-import { getCurrentWorkspace, getUserId, getToken } from '../../utils/storage.js'
+import { getCurrentWorkspace, setProjectId, getUserId, getToken } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 export default {
@@ -74,8 +74,10 @@ export default {
       }
     },
 
-    openDetail(id) {
-      uni.navigateTo({ url: `/pages/projects/detail?id=${id}` })
+    chooseProject(p) {
+      setProjectId({id: p.id, name: p.name})
+      uni.showToast({ title: `已选择${p.name}`, icon: 'success' })
+      uni.navigateTo({ url: `/pages/projects/detail?id=${p.id}` })
     },
 
     /**

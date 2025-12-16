@@ -1,143 +1,347 @@
-.page-root { 
-  padding: 24rpx; 
-}
-
-.page-card { 
-  background: #fff; 
-  border-radius: 12rpx; 
-  box-shadow: 0 8rpx 24rpx rgba(8, 28, 45, 0.06); 
-  overflow: hidden; 
-}
-
-.card-header { 
-  padding: 20rpx 24rpx; 
-  border-bottom: 1rpx solid #f1f5f9; 
-}
-
-.page-title { 
-  font-size: 28rpx; 
-  color: #0f172a; 
-}
-
-.card-body { 
-  padding: 20rpx; 
-}
-
-.form-row { 
-  margin-bottom: 12rpx; 
-}
-
-.field-label { 
-  font-size: 24rpx; 
-  color: #374151; 
-  margin-bottom: 6rpx; 
-  display: block;
-}
-
-.input-control { 
-  width: 100%; 
-  padding: 12rpx; 
-  border-radius: 8rpx; 
-  border: 1rpx solid #e6e9ee; 
-  box-sizing: border-box;
-}
-
-.section-title {
-  font-size: 26rpx;
-  color: #111827;
-  margin: 20rpx 0 10rpx 0;
-  padding-bottom: 5px;
-  border-bottom: 1px solid #eee;
-}
-
-.task-list {
-  max-height: 300rpx;
-  overflow-y: auto;
-  margin-bottom: 20rpx;
-}
-
-.task-item {
-  padding: 12rpx;
-  border-bottom: 1rpx solid #f1f5f9;
+/* ChatGPT-ish, mobile-first */
+.chat-page{
+  height: calc(100vh - 50px);
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  background: #f7f7f8;
+  position: relative;
 }
 
-.task-title {
-  font-size: 24rpx;
-  color: #374151;
+.chat-history{
+  flex: 1;
+  padding: 12px;
+  padding-bottom: 60px; /* 为输入框留出空间 */
+  transition: padding-left 0.3s ease; /* 与侧边栏切换动画同步 */
 }
 
-.task-status {
-  font-size: 20rpx;
-  color: #6b7280;
-  background-color: #f3f4f6;
-  padding: 2rpx 10rpx;
-  border-radius: 4rpx;
-}
-
-.empty-task {
-  text-align: center;
-  color: #6b7280;
-  padding: 20rpx;
-  font-size: 24rpx;
-}
-
-.form-actions {
+.composer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(247,247,248,0.95);
+  backdrop-filter: blur(10px);
+  z-index: 100;
+  margin: 0;
+  box-shadow: 0 -1px 4px rgba(0,0,0,0.05);
+  padding: 10px 12px;
+  border-top: 1px solid #e5e7eb;
   display: flex;
-  gap: 12rpx;
-  margin-top: 20rpx;
+  gap: 10px;
 }
 
-/* 阿里云风格按钮样式 */
-.btn {
+/* 当侧边栏展开时 */
+.composer.with-sidebar {
+  left: 140px; /* 280rpx = 140px */
+}
+
+/* 当侧边栏收起时 */
+.composer.with-sidebar-collapsed {
+  left: 50px; /* 100rpx = 50px */
+}
+
+.chat-padding-top{ height: 6px; }
+.chat-padding-bottom{ height: 10px; }
+
+.msg-row{
+  display: flex;
+  align-items: flex-end;
+  margin: 10px 0;
+  gap: 8px;
+}
+
+.msg-row.user{
+  justify-content: flex-end;
+}
+
+.msg-row.assistant{
+  justify-content: flex-start;
+}
+
+.avatar{
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 3px;
-  font-size: 14px;
-  line-height: 1.5715;
-  padding: 5px 15px;
-  height: 32px;
-  cursor: pointer;
-  transition: all .3s cubic-bezier(.645,.045,.355,1);
-  outline: none;
-  border: 1px solid transparent;
-  position: relative;
-  box-sizing: border-box;
-  white-space: nowrap;
-  flex: 1;
-}
-
-.btn-primary {
-  background: #0070cc;
+  font-size: 12px;
+  background: #111827;
   color: #fff;
-  border-color: #0070cc;
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.016);
+  flex: 0 0 auto;
 }
 
-.btn-primary:hover {
-  background: #0066bb;
-  border-color: #0066bb;
+.user-avatar{
+  background: #2563eb;
 }
 
-.btn-primary:active {
-  background: #005599;
-  border-color: #005599;
+.msg-bubble{
+  max-width: 78%;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.03);
 }
 
-.btn-secondary {
+.msg-row.assistant .msg-bubble{
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.msg-row.user .msg-bubble{
+  background: #2563eb;
+  color: #fff;
+}
+
+.msg-content{
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.msg-thinking{
+  background: rgba(17,24,39,0.04);
+  border: 1px dashed rgba(17,24,39,0.18);
+  border-radius: 12px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.thinking-head{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.thinking-title{
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.thinking-duration{
+  margin-left: 6px;
+  font-weight: 600;
+  opacity: 0.65;
+}
+
+.thinking-toggle{
+  font-size: 12px;
+  opacity: 0.7;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(17,24,39,0.15);
+  background: rgba(255,255,255,0.55);
+}
+
+
+.thinking-label{
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+.thinking-content{
+  font-size: 12px;
+  opacity: 0.85;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* JSON task card */
+.json-card{
+  margin-top: 10px;
+  background: #0b1220;
+  color: #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.json-title{
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.json-kv{
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.json-k{
+  flex: 0 0 auto;
+  opacity: 0.75;
+}
+
+.json-v{
+  flex: 1;
+  font-weight: 600;
+}
+
+.json-section-title{
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.task-card{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.task-head{
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.task-name{
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.task-meta{
+  font-size: 12px;
+  opacity: 0.75;
+  flex: 0 0 auto;
+}
+
+.task-desc{
+  margin-top: 6px;
+  font-size: 12px;
+  opacity: 0.92;
+  line-height: 1.5;
+}
+
+.task-times {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.time-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.time-label {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.time-input {
+  flex: 1;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 11px;
+  color: white;
+}
+
+.subtasks{
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+.subtasks-title{
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+
+.subtask-item{
+  margin-bottom: 8px;
+}
+
+.subtask-item--nested{
+  margin-left: 10px;
+  opacity: 0.95;
+}
+
+.subtask-name{
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.level-1 {
+  font-weight: 700;
+}
+
+.level-2 {
+  font-weight: 600;
+}
+
+.level-3 {
+  font-weight: 500;
+}
+
+.level-4 {
+  font-weight: 400;
+}
+
+.level-5 {
+  font-weight: 300;
+}
+
+.subtask-meta{
+  font-size: 11px;
+  opacity: 0.72;
+  margin-top: 2px;
+}
+
+.subtask-desc{
+  font-size: 12px;
+  opacity: 0.9;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+.json-summary{
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.92;
+}
+
+/* composer */
+
+
+.composer-input{
+  flex: 1;
+  height: 38px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
   background: #fff;
-  color: #555;
-  border-color: #ddd;
+  padding: 0 12px;
+  font-size: 14px;
 }
 
-.btn-secondary:hover {
-  background: #fafafa;
-  border-color: #ccc;
+.composer-send{
+  height: 38px;
+  border-radius: 14px;
+  padding: 0 16px;
+  border: none;
+  background: #111827;
+  color: #fff;
+  font-size: 14px;
 }
 
-.btn-secondary:active {
-  background: #f5f5f5;
-  border-color: #bbb;
+.composer-send[disabled]{
+  opacity: 0.4;
 }

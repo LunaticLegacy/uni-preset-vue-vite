@@ -41,7 +41,12 @@
       </view>
     </view>
 
-    <view class="main-area">
+    <view 
+      class="main-area" 
+      :class="{
+        'with-sidebar-collapsed': isSidebarCollapsed
+      }"
+    >
       <view class="topbar">
         <text class="topbar-title">{{ pageTitle || '仪表盘' }}</text>
         <view class="topbar-status">
