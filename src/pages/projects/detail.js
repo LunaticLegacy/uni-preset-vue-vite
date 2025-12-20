@@ -41,7 +41,7 @@ export default {
       messages: [
         {
           role: 'assistant',
-          content: '你好！我是AI助手，有什么可以帮您的？',
+          content: '请输入您需要分解的任务……',
           thinking: '',
           thinkingMeta: { open: false, active: false, startMs: null, endMs: null, durationSec: 0 },
           jsonData: null
@@ -236,6 +236,7 @@ export default {
     },
 
     sendMessage() {
+      // 发送信息
       const text = String(this.userInput || '').trim()
       if (!text) return
 
@@ -436,6 +437,7 @@ export default {
         dataType: 'text',
         responseType: 'arraybuffer',
         enableChunked: true,
+        timeout: 10 * 60 * 1000,  // 10 minutes for timeout, the default timeout was too short for decomposing.
         data: {
           time: new Date().toISOString(),
           token: getToken(),
@@ -446,30 +448,29 @@ export default {
           system_prompt: null
         },
         success: (res) => {
-          // 某些端不触发 onChunkReceived：这里兜底一次性处理
           if (res.statusCode === 200) {
-            const tail = decodeChunk(res.data)
-            if (tail && !hasChunks) {
-              processStreamText(tail)
-              processRemainingBuffer() // 处理剩余缓冲区
-              flushUi(true)
-            } else if(!hasChunks) {
-              processRemainingBuffer() // 处理剩余缓冲区
-              flushUi(true)
+            // 没走 onChunkReceived 的端：一次性处理整包
+            if (!hasChunks) {
+              const all = decodeChunk(res.data)
+              if (all) processStreamText(all)
             }
+
+            // ✅ 不管有没有 chunks，都要把 pending 吐出来
+            processRemainingBuffer()
+            flushUi(true)
           } else {
             self.messages[aiIndex].content = '抱歉，请求失败，请稍后再试。'
           }
 
-          // end timer
+          // end timer（原样保留）
           if (meta) {
             meta.active = false
             meta.endMs = Date.now()
             meta.durationSec = Math.max(0, Math.round((meta.endMs - (meta.startMs || meta.endMs)) / 1000))
           }
 
-          // 最终 JSON 解析（完整闭合才会成功）
-          if (jsonText && jsonText.trim() && !hasChunks) {
+          // ✅ 最终 JSON 解析也别再绑 !hasChunks（否则 chunk 模式永远不做最终 parse）
+          if (jsonText && jsonText.trim()) {
             const cleaned = self.cleanJsonStream(jsonText)
             const parsed = self.tryParseJson(cleaned)
             if (parsed) {
@@ -480,9 +481,9 @@ export default {
             }
           }
 
-          // 后端可能已根据 JSON 自动创建任务：刷新一次任务列表
           self.fetchTasks()
         },
+
         fail: (err) => {
           console.error('[detail] chat fail:', err)
           self.messages[aiIndex].content = '抱歉，网络连接出错，请稍后再试。'
@@ -505,10 +506,15 @@ export default {
           processStreamText(chunk)
           flushUi(false)
         })
-      } else {
-        // 如果没有 onChunkReceived，则在请求完成后处理剩余缓冲区
-        processRemainingBuffer()
       }
+      
+      // 确保在请求结束后处理任何剩余的缓冲区内容
+      setTimeout(() => {
+        if (!hasChunks) {
+          processRemainingBuffer()
+          flushUi(true)
+        }
+      }, 100)
     },
 
     scrollToBottom() {

@@ -48,6 +48,7 @@
   width: 120rpx;
   height: 120rpx;
   margin-bottom: 20rpx;
+  cursor: pointer;
 }
 
 .sidebar-nav {

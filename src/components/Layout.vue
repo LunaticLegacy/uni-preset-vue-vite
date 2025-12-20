@@ -1,7 +1,7 @@
 <template>
   <view class="app-root">
     <view :class="['sidebar', { collapsed: isSidebarCollapsed }]">
-      <image src="/static/logo.png" class="sidebar-logo" />
+      <image src="/static/logo.png" class="sidebar-logo" @click="goToHome" />
       <view class="collapse-toggle" @click="toggleSidebar">
         <text>{{ isSidebarCollapsed ? '▶' : '◀' }}</text>
       </view>
@@ -52,6 +52,7 @@
         <view class="topbar-status">
           <text class="status-text">{{ authed ? '已登录' : '未登录' }}</text>
           <text v-if="authed" class="status-text muted">ID: {{ userId || '未知' }}</text>
+          <text v-if="authed && currentProject" class="status-text muted">项目: {{ currentProject.name || '未知' }}</text>
           <navigator v-if="!authed" url="/pages/auth/login" class="action-link">登录</navigator>
           <navigator v-if="!authed" url="/pages/auth/register" class="action-link">注册</navigator>
           <button v-else class="action-link btn-secondary" @click="logout">退出</button>

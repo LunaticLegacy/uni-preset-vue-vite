@@ -75,8 +75,8 @@ export default {
     },
 
     chooseProject(p) {
-      setProjectId({id: p.id, name: p.name})
-      uni.showToast({ title: `已选择${p.name}`, icon: 'success' })
+      setProjectId({id: p.id, name: p.title})
+      uni.showToast({ title: `已选择${p.title}`, icon: 'success' })
       uni.navigateTo({ url: `/pages/projects/detail?id=${p.id}` })
     },
 

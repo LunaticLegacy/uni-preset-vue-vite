@@ -1,5 +1,5 @@
 import { apiPost } from '../services/http.js'
-import { getToken, getUserId, clearToken, clearUserId } from '../utils/storage.js'
+import { getToken, getUserId, clearToken, clearUserId, getProjectId } from '../utils/storage.js'
 
 export default {
   name: 'Layout',
@@ -13,7 +13,8 @@ export default {
     return {
       isSidebarCollapsed: false,
       authed: false,
-      userId: ''
+      userId: '',
+      currentProject: null
     }
   },
   created() {
@@ -29,6 +30,7 @@ export default {
       const token = getToken()
       this.authed = !!token
       this.userId = getUserId() || ''
+      this.currentProject = getProjectId()
     },
     // Logout current user
     async logout() {
@@ -42,6 +44,10 @@ export default {
         this.refreshAuth()
         uni.reLaunch({ url: '/pages/auth/login' })
       }
+    },
+    // Navigate to home page
+    goToHome() {
+      uni.reLaunch({ url: '/pages/index/index' });
     }
   }
 }
