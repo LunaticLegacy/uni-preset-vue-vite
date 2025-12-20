@@ -113,3 +113,31 @@ export function clearProjectId() {
   } catch (e) {}
 }
 
+/**
+ * 获取已归档的任务列表
+ * @returns {Array}
+ */
+export function getArchivedTasks() {
+  try {
+    return uni.getStorageSync('archived_tasks') || []
+  } catch (e) {
+    return []
+  }
+}
+
+/**
+ * 追加归档任务到本地存储（不会去重）
+ * @param {Object} task - 要归档的任务对象
+ */
+export function appendArchivedTask(task) {
+  try {
+    const key = 'archived_tasks'
+    const arr = uni.getStorageSync(key) || []
+    arr.push(task || {})
+    uni.setStorageSync(key, arr)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+

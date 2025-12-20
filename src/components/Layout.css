@@ -157,11 +157,18 @@
   }
   
   .sidebar {
+    position: sticky;
+    top: 0;
     width: 100%;
     flex-direction: row;
     padding: 12rpx;
     gap: 12rpx;
     overflow: auto;
+    height: auto;
+    border-right: none;
+    border-bottom: 1rpx solid rgba(0,0,0,0.06);
+    box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.05);
+    z-index: 120;
   }
   
   .sidebar.collapsed {
@@ -170,6 +177,13 @@
   
   .sidebar-nav {
     flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .main-area,
+  .main-area.with-sidebar-collapsed {
+    margin-left: 0;
   }
   
   .collapse-toggle {

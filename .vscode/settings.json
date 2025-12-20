@@ -19,5 +19,10 @@
     "typescript",
     "typescriptreact",
     "vue"
-  ]
+  ],
+  "builder.serverUrl": "https://localhost:5173",
+  "builder.command": "npm run dev:h5",
+  "builder.runDevServer": true,
+  "builder.autoDetectDevServer": false,
+  "builder.launchType": "editor"
 }

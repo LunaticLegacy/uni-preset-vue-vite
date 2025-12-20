@@ -7,14 +7,14 @@ import Layout from '../../components/Layout.vue'
  */
 export default {
   components: { Layout },
-  
+
   data() {
-    return { 
-      tasks: [], 
-      project_id: '', 
-      title: '', 
-      description: '', 
-      priority: '', 
+    return {
+      tasks: [],
+      project_id: '',
+      title: '',
+      description: '',
+      priority: '',
       priorities: [
         { label: 'low', value: 'low' },
         { label: 'medium', value: 'medium' },
@@ -22,20 +22,24 @@ export default {
       ],
       loading: false,
       error: '',
-      workspace: null
+      workspace: null,
+      currentProject: null,
+      expandedTaskIds: new Set()
     }
   },
   
-  onShow() { 
+  onShow() {
     this.workspace = getCurrentWorkspace()
-    this.fetch() 
+    this.currentProject = getProjectId()
+    this.fetch()
   },
   
   methods: {
     /**
      * 获取任务列表
+     * API现在返回任务树结构，需要转换为平铺的任务列表
      */
-    async fetch() { 
+    async fetch() {
       this.loading = true
       this.error = ''
       if (!this.workspace || !this.workspace.id) {
@@ -49,9 +53,16 @@ export default {
            token: getToken(),
            workspace_id: this.workspace.id,
            project_id: getProjectId().id,
+           subtasks: null
         })
         if (res.statusCode === 200) {
-          this.tasks = res.data.data || [] 
+          const taskTreeList = res.data.data || []
+          // 将任务树结构转换为平铺的任务列表
+          // TaskTree 结构: { task: Task, subtasks: List[TaskTree] }
+          this.tasks = taskTreeList.map(tree => ({
+            ...tree.task,
+            subtasks: this.flattenSubtasks(tree.subtasks)
+          }))
         } else {
           this.error = res?.data?.message || '加载失败'
         }
@@ -59,7 +70,23 @@ export default {
         this.error = '网络错误'
       } finally {
         this.loading = false
-      } 
+      }
+    },
+
+    /**
+     * 将递归的子任务树转换为平铺的列表
+     * @param {Array} subtaskTrees - TaskTree 数组
+     * @returns {Array} 平铺的任务对象数组
+     */
+    flattenSubtasks(subtaskTrees) {
+      if (!subtaskTrees || !Array.isArray(subtaskTrees)) {
+        return []
+      }
+
+      return subtaskTrees.map(tree => ({
+        ...tree.task,
+        subtasks: this.flattenSubtasks(tree.subtasks)
+      }))
     },
     
     /**
@@ -113,13 +140,41 @@ export default {
     },
     
     /**
-     * 打开任务详情页面
-     * @param {string} id - 任务ID
+     * 生成展开状态的唯一键
+     * @param {string} parentId - 父任务ID，为空时表示顶级任务
+     * @param {string} taskId - 当前任务ID
+     * @returns {string}
      */
-    openDetail(id) { 
-      uni.navigateTo({ 
-        url: `/pages/tasks/detail?id=${id}` 
-      }) 
+    getExpandKey(parentId, taskId) {
+      return parentId ? `${parentId}:${taskId}` : taskId
     },
+
+    /**
+     * 切换任务的展开/收回状态
+     * @param {string} parentId - 父任务ID，为空时表示顶级任务
+     * @param {string} taskId - 当前任务ID
+     */
+    toggleTaskExpand(parentId, taskId) {
+      const key = this.getExpandKey(parentId, taskId)
+      if (this.expandedTaskIds.has(key)) {
+        this.expandedTaskIds.delete(key)
+      } else {
+        this.expandedTaskIds.add(key)
+      }
+      this.$forceUpdate()
+    },
+
+    /**
+     * 检查任务是否已展开
+     * @param {string} parentId - 父任务ID，为空时表示顶级任务
+     * @param {string} taskId - 当前任务ID
+     * @returns {boolean}
+     */
+    isTaskExpanded(parentId, taskId) {
+      const key = this.getExpandKey(parentId, taskId)
+      return this.expandedTaskIds.has(key)
+    },
+
+
   }
 }
