@@ -7,20 +7,24 @@
           <view class="header-actions">
             <input class="input-sm" v-model="name" placeholder="名称" />
             <input class="input-sm" v-model="description" placeholder="描述" />
-            <button class="btn-primary" @click="createWorkspace">新建</button>
+            <button class="btn btn-primary" @click="createWorkspace">新建</button>
           </view>
         </view>
 
         <view class="card-body">
-          <view class="grid">
+          <view v-if="loading" class="list-state">加载中...</view>
+          <view v-else-if="error" class="list-state error">{{ error }}</view>
+          <view v-else-if="workspaces.length === 0" class="list-state">暂无数据</view>
+          <view v-else class="grid">
             <view class="workspace-card" v-for="w in workspaces" :key="w.id">
               <view class="workspace-main" @click="openDetail(w.id)">
-                <text class="workspace-title">{{ w.name }}</text>
+                <text class="workspace-title">{{ w.name }}<br></text>
                 <text class="workspace-sub">{{ w.description }}</text>
               </view>
               <view class="workspace-actions">
-                <button class="btn-ghost" @click.stop="edit(w)">编辑</button>
-                <button class="btn-danger" @click.stop="remove(w.id)">删除</button>
+                <button class="btn btn-secondary" @click.stop="edit(w)">编辑</button>
+                <button class="btn btn-primary" @click.stop="chooseWorkspace(w)">进入工作空间</button>
+                <button class="btn btn-danger" @click.stop="remove(w.id)">删除</button>
               </view>
             </view>
           </view>
@@ -30,8 +34,6 @@
   </Layout>
 </template>
 
-<script src="./index.js">
-</script>
+<script src="./index.js"></script>
 
-<style src="./index.css">
-</style>
+<style src="./index.css"></style>

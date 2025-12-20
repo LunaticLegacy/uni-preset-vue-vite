@@ -1,9 +1,10 @@
 import { apiGet } from '../../services/http.js'
+import { getCurrentWorkspace } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 
 /**
  * 搜索页面
- * 支持按任务或项目进行搜索
+ * 使用 /search/ 接口，按工作空间搜索任务/项目
  */
 export default {
   components: { 
@@ -15,8 +16,13 @@ export default {
       tab: 'tasks', 
       query: '', 
       taskResults: [], 
-      projectResults: [] 
+      projectResults: [], 
+      workspace: null
     }
+  },
+
+  onShow() {
+    this.workspace = getCurrentWorkspace()
   },
   
   methods: {
@@ -30,22 +36,20 @@ export default {
         this.projectResults = []
         return 
       }
+      if (!this.workspace || !this.workspace.id) {
+        uni.showToast({ title: '请先选择工作空间', icon: 'none' })
+        return
+      }
       
-      if (this.tab === 'tasks') { 
-        const r = await apiGet('/search/tasks', { 
-          query: this.query 
-        })
-        if (r.statusCode === 200) {
-          this.taskResults = r.data.data || [] 
-        }
-      } else { 
-        const r = await apiGet('/search/projects', { 
-          query: this.query 
-        })
-        if (r.statusCode === 200) {
-          this.projectResults = r.data.data || [] 
-        }
-      } 
+      const r = await apiGet('/search/', { 
+        workspace_id: this.workspace.id,
+        q: this.query 
+      })
+      if (r.statusCode === 200) {
+        const data = r.data.data || {}
+        this.taskResults = data.tasks || []
+        this.projectResults = data.projects || []
+      }
     }
   }
 }

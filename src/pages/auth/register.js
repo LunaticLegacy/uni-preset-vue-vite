@@ -34,11 +34,13 @@ export default {
       }
       
       try {
-        const res = await apiPost('/user/register', { 
+        const res = await apiPost('/user/register/', { 
+          time: new Date().toISOString(),
           username: this.username, 
-          email: this.email, 
-          password: this.password 
-        })
+          password: this.password,
+          email: this.email,
+          token: null
+        }, { auth: false })
         
         if (res.statusCode === 200 && res.data.status === 'success') {
           uni.showToast({ 

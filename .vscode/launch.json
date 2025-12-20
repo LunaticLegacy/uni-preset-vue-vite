@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "sourceMapPathOverrides": {
+        "webpack:///src/*": "${webRoot}/*"
+      }
+    },
+    {
+      "name": "UniApp Debug",
+      "type": "firefox",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/src",
+      "pathMappings": [
+        {
+          "url": "http://localhost:5173",
+          "path": "${workspaceFolder}/src"
+        }
+      ],
+      "preLaunchTask": "uni-app serve"
+    }
+  ]
+}

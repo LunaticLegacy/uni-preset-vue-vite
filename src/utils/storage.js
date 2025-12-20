@@ -50,3 +50,94 @@ export function setUserId(id) {
     uni.setStorageSync('user_id', id || '') 
   } catch (e) {}
 }
+
+/**
+ * 清除用户ID
+ */
+export function clearUserId() {
+  try { 
+    uni.removeStorageSync('user_id') 
+  } catch (e) {}
+}
+
+/**
+ * 当前工作空间上下文（id/name）
+ */
+const WORKSPACE_KEY = 'current_workspace'
+
+export function setCurrentWorkspace(workspace) {
+  try {
+    const payload = workspace ? { id: workspace.id || '', name: workspace.name || '' } : null
+    uni.setStorageSync(WORKSPACE_KEY, payload)
+  } catch (e) {}
+}
+
+export function getCurrentWorkspace() {
+  try {
+    return uni.getStorageSync(WORKSPACE_KEY) || null
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearCurrentWorkspace() {
+  try {
+    uni.removeStorageSync(WORKSPACE_KEY)
+  } catch (e) {}
+}
+
+
+/**
+ * 当前任务上下文
+ */
+const PROJECT_KEY = 'current_project'
+
+export function setProjectId(project) {
+  try {
+    const payload = project ? {id: project.id || '', name: project.name || ''} : null
+    uni.setStorageSync(PROJECT_KEY, payload)
+  } catch (e) { }
+}
+
+export function getProjectId() {
+  try {
+    return uni.getStorageSync(PROJECT_KEY) || null
+  } catch (e) {
+    return null
+  }
+}
+
+export function clearProjectId() {
+  try {
+    uni.removeStorageSync(PROJECT_KEY)
+  } catch (e) {}
+}
+
+/**
+ * 获取已归档的任务列表
+ * @returns {Array}
+ */
+export function getArchivedTasks() {
+  try {
+    return uni.getStorageSync('archived_tasks') || []
+  } catch (e) {
+    return []
+  }
+}
+
+/**
+ * 追加归档任务到本地存储（不会去重）
+ * @param {Object} task - 要归档的任务对象
+ */
+export function appendArchivedTask(task) {
+  try {
+    const key = 'archived_tasks'
+    const arr = uni.getStorageSync(key) || []
+    arr.push(task || {})
+    uni.setStorageSync(key, arr)
+    return true
+  } catch (e) {
+    return false
+  }
+}
+

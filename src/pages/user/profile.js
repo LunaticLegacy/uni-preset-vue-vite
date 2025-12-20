@@ -23,7 +23,7 @@ export default {
       return 
     }
     
-    const res = await apiGet(`/user/profile/${id}`)
+    const res = await apiGet(`/user/profile/${id}/`)
     if (res.statusCode === 200 && res.data.status === 'success') {
       const d = res.data.data || {}
       this.full_name = d.full_name || ''
@@ -42,7 +42,7 @@ export default {
         return 
       }
       
-      const res = await apiPut(`/user/profile/${id}`, { 
+      const res = await apiPut(`/user/profile/${id}/`, { 
         full_name: this.full_name, 
         display_name: this.display_name, 
         bio: this.bio 
@@ -60,7 +60,7 @@ export default {
      * 用户登出
      */
     async logout() {
-      await apiPost('/user/logout', {})
+      await apiPost('/user/logout/', {})
       clearToken()
       uni.reLaunch({ 
         url: '/pages/auth/login' 

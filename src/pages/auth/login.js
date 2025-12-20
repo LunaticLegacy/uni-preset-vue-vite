@@ -35,10 +35,13 @@ export default {
       }
       
       try {
-        const res = await apiPost('/user/login', { 
-          username: this.username, 
-          password: this.password 
-        })
+        const res = await apiPost('/user/login/', { 
+          time: new Date().toISOString(),
+          token: null,
+          email: this.email, 
+          password: this.password,
+          token: null
+        }, { auth: false })
         
         if (res.statusCode === 200 && res.data.status === 'success') {
           setToken(res.data.token)
@@ -47,16 +50,9 @@ export default {
             title: '登录成功', 
             icon: 'success' 
           })
-          
-          if (uni.switchTab) {
-            uni.switchTab({ 
-              url: '/pages/index/index' 
-            })
-          } else {
-            uni.reLaunch({ 
-              url: '/pages/index/index' 
-            })
-          }
+          uni.reLaunch({ 
+            url: '/pages/index/index' 
+          })
         } else {
           uni.showToast({ 
             title: res.data.message || '登录失败', 

@@ -3,7 +3,7 @@
  * 定义API服务器的基础地址
  */
 // API会在哪个URL里启动
-export const API_BASE_URL = 'http://localhost:3000'
+export const API_BASE_URL = '/api'
 
 /**
  * 是否使用模拟API

@@ -4,7 +4,74 @@
 .page-title { font-size: 32rpx; color: #111827 }
 .header-actions { display: flex; gap: 12rpx; align-items: center }
 .input-sm { padding: 12rpx; border-radius: 8rpx; border: 1rpx solid #e6e9ee }
-.btn-primary { background: #2563eb; color: #fff; padding: 10rpx 16rpx; border-radius: 10rpx }
+
+/* 阿里云风格按钮样式 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  font-size: 14px;
+  line-height: 1.5715;
+  padding: 5px 15px;
+  height: 32px;
+  cursor: pointer;
+  transition: all .3s cubic-bezier(.645,.045,.355,1);
+  outline: none;
+  border: 1px solid transparent;
+  position: relative;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: #0070cc;
+  color: #fff;
+  border-color: #0070cc;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.016);
+}
+
+.btn-primary:hover {
+  background: #0066bb;
+  border-color: #0066bb;
+}
+
+.btn-primary:active {
+  background: #005599;
+  border-color: #005599;
+}
+
+.btn-secondary {
+  background: #fff;
+  color: #555;
+  border-color: #ddd;
+}
+
+.btn-secondary:hover {
+  background: #fafafa;
+  border-color: #ccc;
+}
+
+.btn-secondary:active {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+.btn-danger {
+  background: #ff3333;
+  color: #fff;
+  border-color: #ff3333;
+}
+
+.btn-danger:hover {
+  background: #e62e2e;
+  border-color: #e62e2e;
+}
+
+.btn-danger:active {
+  background: #cc2929;
+  border-color: #cc2929;
+}
 
 .card-body { padding: 20rpx }
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx }
@@ -13,8 +80,9 @@
 .workspace-title { font-size: 28rpx; color: #0f172a }
 .workspace-sub { color: #6b7280; margin-top: 6rpx }
 .workspace-actions { display: flex; gap: 8rpx; margin-top: 12rpx }
-.btn-ghost { background: transparent; border: 1rpx solid #e6e9ee; padding: 8rpx 10rpx; border-radius: 8rpx }
-.btn-danger { background: #ef4444; color: #fff; padding: 8rpx 10rpx; border-radius: 8rpx }
+
+.list-state { padding: 20rpx; text-align: center; color: #6b7280 }
+.list-state.error { color: #ef4444 }
 
 @media (max-width: 640px) { 
   .grid { grid-template-columns: repeat(1, 1fr) } 

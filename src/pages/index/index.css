@@ -30,3 +30,49 @@
   border-radius: 45rpx;
   padding: 20rpx 60rpx;
 }
+
+.welcome-message {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 30rpx;
+}
+
+.dashboard-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40rpx;
+}
+
+.stat-card {
+  flex: 1;
+  padding: 20rpx;
+  background: #f8f8f8;
+  border-radius: 10rpx;
+  text-align: center;
+  margin: 0 10rpx;
+}
+
+.stat-value {
+  display: block;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.quick-actions {
+  margin-top: 30rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-bottom: 20rpx;
+  color: #333;
+}
