@@ -3,6 +3,20 @@ import Layout from '../../components/Layout.vue'
 import RecursiveSubtasks from '../../components/RecursiveSubtasks.vue'
 import { getProjectId, getToken, getUserId, getCurrentWorkspace } from '../../utils/storage.js'
 
+const MARKERS = {
+  THINK_START: '<<<THINKING>>>',
+  THINK_END: '<<<THINK_END>>>',
+  JSON_BEGIN: '<<<JSON_BEGIN>>>',
+  JSON_END: '<<<JSON_END>>>'
+}
+
+const MAX_MARKER_LEN = Math.max(
+  MARKERS.THINK_START.length,
+  MARKERS.THINK_END.length,
+  MARKERS.JSON_BEGIN.length,
+  MARKERS.JSON_END.length
+)
+
 export default {
   components: { Layout, RecursiveSubtasks },
 
@@ -11,27 +25,29 @@ export default {
       id: '',
       projectName: '',
       projectDescription: '',
+
       tasks: [],
       tasksLoading: false,
       tasksError: '',
       expandedTaskIds: new Set(),
-      
+
       userInput: '',
       scrollIntoId: '',
       textareaHeight: 45,
+
       editingTask: null,
       editingTaskPath: null,
+
       messages: [
         {
           role: 'assistant',
           content: '你好！我是AI助手，有什么可以帮您的？',
           thinking: '',
           thinkingMeta: { open: false, active: false, startMs: null, endMs: null, durationSec: 0 },
-          jsonData: null,
-          jsonBlocks: null,
-          readyTasks: []
+          jsonData: null
         }
       ],
+
       userId: getUserId()
     }
   },
@@ -43,63 +59,87 @@ export default {
   },
 
   onLoad(q) {
-    this.id = q.id
-    console.log('项目详情页加载, projectId:', this.id)
+    this.id = q?.id || ''
     const workspace = getCurrentWorkspace()
-    console.log('当前工作空间:', workspace)
-    console.log('当前项目:', getProjectId())
+    const storedProject = getProjectId()
 
-    this.fetchProjectInfo().then(() => {
-      console.log('项目信息加载完成')
-      return this.fetchTasks()
-    }).then(() => {
-      console.log('任务加载完成')
-      this.$nextTick(() => this.scrollToBottom())
-    }).catch((err) => {
-      console.error('加载失败:', err)
-    })
+    console.log('[detail] onLoad id=', this.id)
+    console.log('[detail] workspace=', workspace)
+    console.log('[detail] storedProject=', storedProject)
+
+    this.fetchProjectInfo()
+      .then(() => this.fetchTasks())
+      .then(() => this.$nextTick(() => this.scrollToBottom()))
+      .catch((e) => console.error('[detail] init failed:', e))
   },
 
   methods: {
+    // =========================
+    // 项目详情：/projects/{id}/get/
+    // =========================
     fetchProjectInfo() {
       return new Promise((resolve) => {
-        try {
-          const projectId = getProjectId()?.id || this.id
-          const url = `${API_BASE_URL.replace(/\/$/, '')}/projects/${projectId}/`
-          uni.request({
-            url,
-            method: 'GET',
-            header: {
-              'Content-Type': 'application/json',
-              ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
-            },
-            success: (res) => {
-              if (res.statusCode === 200 && res.data?.status === 'success' && res.data?.data) {
-                this.projectName = res.data.data.title || res.data.data.name || '项目'
-                this.projectDescription = res.data.data.description || ''
-              }
-              resolve()
-            },
-            fail: (err) => {
-              console.error('获取项目信息失败:', err)
-              this.projectName = '项目'
-              resolve()
-            }
-          })
-        } catch (err) {
-          console.error('获取项目信息失败:', err)
-          this.projectName = '项目'
+        const projectId = (getProjectId() && getProjectId().id) ? getProjectId().id : this.id
+        if (!projectId) {
+          this.projectName = '未选择项目'
+          this.projectDescription = ''
           resolve()
+          return
         }
+
+        const url = `${API_BASE_URL.replace(/\/$/, '')}/projects/${projectId}/get/`
+        uni.request({
+          url,
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/json',
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+          },
+          data: {}, // 后端无 body 参数，这里发空对象即可
+          success: (res) => {
+            try {
+              console.log('[detail] project get:', res.statusCode, res.data)
+              if (res.statusCode === 200 && res.data?.status === 'success' && res.data?.data) {
+                const d = res.data.data
+                this.projectName =
+                  d.name || d.title || d.project_name || d.projectName || `项目 ${projectId}`
+                this.projectDescription =
+                  d.description || d.desc || d.project_description || d.projectDescription || ''
+              } else if (res.statusCode === 404) {
+                this.projectName = '项目不存在'
+                this.projectDescription = ''
+              } else {
+                this.projectName = `项目 ${projectId}`
+                this.projectDescription = ''
+              }
+            } catch (e) {
+              console.error('[detail] parse project error:', e)
+              this.projectName = `项目 ${projectId}`
+              this.projectDescription = ''
+            }
+            resolve()
+          },
+          fail: (err) => {
+            console.error('[detail] project get fail:', err)
+            const projectId2 = projectId || this.id || ''
+            this.projectName = projectId2 ? `项目 ${projectId2}` : '项目'
+            this.projectDescription = ''
+            resolve()
+          }
+        })
       })
     },
 
+    // =========================
+    // 任务列表（原逻辑保留）
+    // =========================
     fetchTasks() {
       return new Promise((resolve) => {
         this.tasksLoading = true
         this.tasksError = ''
+
         const workspace = getCurrentWorkspace()
-        const projectId = getProjectId()?.id || this.id
+        const projectId = (getProjectId() && getProjectId().id) ? getProjectId().id : this.id
 
         if (!workspace || !workspace.id || !projectId) {
           this.tasksLoading = false
@@ -108,146 +148,450 @@ export default {
           return
         }
 
-        try {
-          const url = `${API_BASE_URL.replace(/\/$/, '')}/tasks/list/`
-          uni.request({
-            url,
-            method: 'POST',
-            header: {
-              'Content-Type': 'application/json',
-              ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
-            },
-            data: {
-              time: new Date().toISOString(),
-              token: getToken(),
-              workspace_id: workspace.id,
-              project_id: projectId,
-              subtasks: null
-            },
-            success: (res) => {
-              try {
-                console.log('任务API响应:', res.statusCode, res.data)
-                if (res.statusCode === 200 && res.data?.status === 'success') {
-                  const taskTreeList = res.data.data || []
-                  console.log('任务树列表:', taskTreeList)
-                  if (Array.isArray(taskTreeList)) {
-                    this.tasks = taskTreeList.map(tree => {
-                      if (!tree || !tree.task) {
-                        console.warn('单个任务数据格式错误:', tree)
-                        return null
-                      }
+        const url = `${API_BASE_URL.replace(/\/$/, '')}/tasks/list/`
+        uni.request({
+          url,
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/json',
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+          },
+          data: {
+            time: new Date().toISOString(),
+            token: getToken(),
+            workspace_id: workspace.id,
+            project_id: projectId,
+            subtasks: null
+          },
+          success: (res) => {
+            try {
+              console.log('[detail] tasks list:', res.statusCode, res.data)
+              if (res.statusCode === 200 && res.data?.status === 'success') {
+                const taskTreeList = res.data.data || []
+                if (Array.isArray(taskTreeList)) {
+                  this.tasks = taskTreeList
+                    .map((tree) => {
+                      if (!tree || !tree.task) return null
                       return {
                         ...tree.task,
                         subtasks: this.flattenSubtasks(tree.subtasks)
                       }
-                    }).filter(Boolean)
-                    console.log('处理后的任务:', this.tasks)
-                  } else {
-                    console.warn('任务数据不是数组:', taskTreeList)
-                    this.tasksError = '任务数据格式错误'
-                  }
+                    })
+                    .filter(Boolean)
                 } else {
-                  const errMsg = res.data?.message || `服务器返回状态: ${res.statusCode}`
-                  console.error('任务API返回错误:', errMsg, res.data)
-                  this.tasksError = errMsg
+                  this.tasksError = '任务数据格式错误'
                 }
-              } catch (parseErr) {
-                console.error('解析任务数据失败:', parseErr, res)
-                this.tasksError = '解析任务数据失败'
+              } else {
+                this.tasksError = res.data?.message || `服务器返回状态: ${res.statusCode}`
               }
-              this.tasksLoading = false
-              resolve()
-            },
-            fail: (err) => {
-              const errMsg = err?.errMsg || JSON.stringify(err) || '未知网络错误'
-              console.error('获取任务失败:', errMsg, err)
-              this.tasksError = `网络错误: ${errMsg}`
-              this.tasksLoading = false
-              resolve()
+            } catch (e) {
+              console.error('[detail] parse tasks error:', e)
+              this.tasksError = '解析任务数据失败'
             }
-          })
-        } catch (err) {
-          console.error('获取任务失败:', err)
-          this.tasksError = '网络错误'
-          this.tasksLoading = false
-          resolve()
-        }
+
+            this.tasksLoading = false
+            resolve()
+          },
+          fail: (err) => {
+            console.error('[detail] tasks list fail:', err)
+            const errMsg = err?.errMsg || '未知网络错误'
+            this.tasksError = `网络错误: ${errMsg}`
+            this.tasksLoading = false
+            resolve()
+          }
+        })
       })
     },
 
     flattenSubtasks(subtaskTrees) {
-      if (!subtaskTrees || !Array.isArray(subtaskTrees)) {
-        return []
-      }
-      return subtaskTrees.map(tree => {
-        if (!tree || !tree.task) {
-          console.warn('子任务数据格式错误:', tree)
-          return { id: Math.random(), title: '数据错误', subtasks: [] }
-        }
-        return {
-          ...tree.task,
-          subtasks: this.flattenSubtasks(tree.subtasks)
-        }
-      }).filter(Boolean)
+      if (!subtaskTrees || !Array.isArray(subtaskTrees)) return []
+      return subtaskTrees
+        .map((tree) => {
+          if (!tree || !tree.task) return null
+          return { ...tree.task, subtasks: this.flattenSubtasks(tree.subtasks) }
+        })
+        .filter(Boolean)
     },
 
     getExpandKey(parentId, taskId) {
       return parentId ? `${parentId}:${taskId}` : taskId
     },
-
     toggleTaskExpand(parentId, taskId) {
       const key = this.getExpandKey(parentId, taskId)
-      if (this.expandedTaskIds.has(key)) {
-        this.expandedTaskIds.delete(key)
-      } else {
-        this.expandedTaskIds.add(key)
-      }
+      if (this.expandedTaskIds.has(key)) this.expandedTaskIds.delete(key)
+      else this.expandedTaskIds.add(key)
       this.$forceUpdate()
     },
-
     isTaskExpanded(parentId, taskId) {
       const key = this.getExpandKey(parentId, taskId)
       return this.expandedTaskIds.has(key)
     },
 
+    // =========================
+    // 聊天：流式 + THINK/JSON 标记
+    // =========================
     toggleThinking(index) {
       const m = this.messages[index]
       if (m && m.thinkingMeta) m.thinkingMeta.open = !m.thinkingMeta.open
     },
 
-    formatMessage(message) {
-      if (!message) return ''
-      return String(message).replace(/\n/g, '<br>')
+    sendMessage() {
+      const text = String(this.userInput || '').trim()
+      if (!text) return
+
+      const workspace = getCurrentWorkspace()
+      const projectId = (getProjectId() && getProjectId().id) ? getProjectId().id : this.id
+
+      if (!workspace?.id || !projectId) {
+        uni.showToast({ title: '缺少 workspace 或 project_id', icon: 'none' })
+        return
+      }
+
+      // push user message
+      this.messages.push({
+        role: 'user',
+        content: text,
+        thinking: '',
+        thinkingMeta: null,
+        jsonData: null
+      })
+      this.userInput = ''
+      this.textareaHeight = 45
+      this.$nextTick(() => this.scrollToBottom())
+
+      // assistant placeholder
+      const aiIndex = this.messages.length
+      this.messages.push({
+        role: 'assistant',
+        content: '',
+        thinking: '',
+        thinkingMeta: { open: false, active: false, startMs: null, endMs: null, durationSec: 0 },
+        jsonData: null
+      })
+      this.$nextTick(() => this.scrollToBottom())
+
+      const token = getToken()
+      const streamUrl = `${API_BASE_URL.replace(/\/$/, '')}/ai/chat-stream/`
+      const self = this
+
+      // stream buffers
+      let mode = 'normal' // normal | thinking | json
+      let pending = ''
+
+      let visibleText = ''
+      let thinkingText = ''
+      let jsonText = ''
+
+      const decoder = (typeof TextDecoder !== 'undefined') ? new TextDecoder('utf-8') : null
+      const decodeChunk = (data) => {
+        if (!data) return ''
+        if (typeof data === 'string') return data
+        try {
+          if (data instanceof ArrayBuffer) {
+            if (decoder) return decoder.decode(new Uint8Array(data), { stream: true })
+            return String.fromCharCode.apply(null, Array.from(new Uint8Array(data)))
+          }
+          if (data?.buffer instanceof ArrayBuffer) {
+            const u8 = new Uint8Array(data.buffer)
+            if (decoder) return decoder.decode(u8, { stream: true })
+            return String.fromCharCode.apply(null, Array.from(u8))
+          }
+        } catch (e) {}
+        return String(data)
+      }
+
+      const appendSafe = (buf, writeFn) => {
+        if (!buf) return ''
+        if (buf.length < MAX_MARKER_LEN) return buf // 全部留给 pending
+        const cut = buf.length - (MAX_MARKER_LEN - 1)
+        writeFn(buf.slice(0, cut))
+        return buf.slice(cut)
+      }
+
+      const processStreamText = (chunkText) => {
+        if (!chunkText) return
+        let buf = pending + chunkText
+        pending = ''
+
+        const writeVisible = (s) => { visibleText += s }
+        const writeThinking = (s) => { thinkingText += s }
+        const writeJson = (s) => { jsonText += s }
+
+        while (buf.length) {
+          if (mode === 'thinking') {
+            const endIdx = buf.indexOf(MARKERS.THINK_END)
+            if (endIdx === -1) {
+              pending = appendSafe(buf, writeThinking)
+              break
+            }
+            writeThinking(buf.slice(0, endIdx))
+            buf = buf.slice(endIdx + MARKERS.THINK_END.length)
+            mode = 'normal'
+            continue
+          }
+
+          if (mode === 'json') {
+            const endIdx = buf.indexOf(MARKERS.JSON_END)
+            if (endIdx === -1) {
+              pending = appendSafe(buf, writeJson)
+              break
+            }
+            writeJson(buf.slice(0, endIdx))
+            buf = buf.slice(endIdx + MARKERS.JSON_END.length)
+            mode = 'normal'
+            continue
+          }
+
+          // normal
+          const thinkIdx = buf.indexOf(MARKERS.THINK_START)
+          const jsonIdx = buf.indexOf(MARKERS.JSON_BEGIN)
+
+          let nextIdx = -1
+          let nextType = ''
+
+          if (thinkIdx !== -1 && jsonIdx !== -1) {
+            nextIdx = Math.min(thinkIdx, jsonIdx)
+            nextType = (nextIdx === thinkIdx) ? 'thinking' : 'json'
+          } else if (thinkIdx !== -1) {
+            nextIdx = thinkIdx
+            nextType = 'thinking'
+          } else if (jsonIdx !== -1) {
+            nextIdx = jsonIdx
+            nextType = 'json'
+          } else {
+            pending = appendSafe(buf, writeVisible)
+            break
+          }
+
+          // marker 前面的内容确定是可见文本
+          writeVisible(buf.slice(0, nextIdx))
+          if (nextType === 'thinking') {
+            buf = buf.slice(nextIdx + MARKERS.THINK_START.length)
+            mode = 'thinking'
+          } else {
+            buf = buf.slice(nextIdx + MARKERS.JSON_BEGIN.length)
+            mode = 'json'
+          }
+        }
+      }
+
+      // ui flush throttle
+      let lastUiMs = 0
+      const flushUi = (force = false) => {
+        const now = Date.now()
+        if (!force && now - lastUiMs < 40) return
+        lastUiMs = now
+
+        self.messages[aiIndex].content = visibleText
+        self.messages[aiIndex].thinking = thinkingText
+
+        // JSON：按规则实时展示（字段齐了就显示）
+        if (jsonText && jsonText.trim()) {
+          const cleaned = self.cleanJsonStream(jsonText)
+          const snapshot = self.makeJsonSnapshot(cleaned)
+          const partialPlan = self.parsePartialTaskPlan(snapshot)
+          if (partialPlan) {
+            self.messages[aiIndex].jsonData = self.mergeLocalFieldsIntoTaskPlan(
+              partialPlan,
+              self.messages[aiIndex].jsonData
+            )
+          }
+        }
+
+        self.$nextTick(() => self.scrollToBottom())
+      }
+
+      // thinking timer meta
+      const meta = self.messages[aiIndex].thinkingMeta
+      if (meta) {
+        meta.active = true
+        meta.startMs = Date.now()
+      }
+
+      const req = uni.request({
+        url: streamUrl,
+        method: 'POST',
+        header: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        dataType: 'text',
+        responseType: 'arraybuffer',
+        enableChunked: true,
+        data: {
+          time: new Date().toISOString(),
+          token: getToken(),
+          message: text,
+          user_id: getUserId(),
+          workspace_id: workspace.id,
+          project_id: projectId,
+          system_prompt: null
+        },
+        success: (res) => {
+          // 某些端不触发 onChunkReceived：这里兜底一次性处理
+          if (res.statusCode === 200) {
+            const tail = decodeChunk(res.data)
+            if (tail && !hasChunks) {
+              processStreamText(tail)
+              flushUi(true)
+            } else if(!hasChunks) {
+              flushUi(true)
+            }
+          } else {
+            self.messages[aiIndex].content = '抱歉，请求失败，请稍后再试。'
+          }
+
+          // end timer
+          if (meta) {
+            meta.active = false
+            meta.endMs = Date.now()
+            meta.durationSec = Math.max(0, Math.round((meta.endMs - (meta.startMs || meta.endMs)) / 1000))
+          }
+
+          // 最终 JSON 解析（完整闭合才会成功）
+          if (jsonText && jsonText.trim() && !hasChunks) {
+            const cleaned = self.cleanJsonStream(jsonText)
+            const parsed = self.tryParseJson(cleaned)
+            if (parsed) {
+              self.messages[aiIndex].jsonData = self.mergeLocalFieldsIntoTaskPlan(
+                parsed,
+                self.messages[aiIndex].jsonData
+              )
+            }
+          }
+
+          // 后端可能已根据 JSON 自动创建任务：刷新一次任务列表
+          self.fetchTasks()
+        },
+        fail: (err) => {
+          console.error('[detail] chat fail:', err)
+          self.messages[aiIndex].content = '抱歉，网络连接出错，请稍后再试。'
+          if (meta) {
+            meta.active = false
+            meta.endMs = Date.now()
+            meta.durationSec = Math.max(0, Math.round((meta.endMs - (meta.startMs || meta.endMs)) / 1000))
+          }
+        }
+      })
+
+      // Track if we've received chunks to prevent double processing
+      let hasChunks = false;
+
+      if (req && typeof req.onChunkReceived === 'function') {
+        req.onChunkReceived((e) => {
+          hasChunks = true;
+          const chunk = decodeChunk(e?.data)
+          if (!chunk) return
+          processStreamText(chunk)
+          flushUi(false)
+        })
+      }
     },
 
     scrollToBottom() {
       this.scrollIntoId = `msg-${this.messages.length - 1}`
     },
 
-    onInputChange(e) {
-      if (this.userInput.length > 20000) {
-        this.userInput = this.userInput.slice(0, 20000)
-      }
+    onInputChange() {
+      if (this.userInput.length > 20000) this.userInput = this.userInput.slice(0, 20000)
 
+      // 兼容：H5 用 scrollHeight；其他端近似估计
       this.$nextTick(() => {
-        const textarea = document.querySelector('.composer-input')
-        if (textarea) {
-          const scrollHeight = textarea.scrollHeight
-          this.textareaHeight = Math.min(Math.max(scrollHeight, 45), 200)
-        }
+        try {
+          if (typeof document !== 'undefined' && document.querySelector) {
+            const el = document.querySelector('.composer-input')
+            if (el) {
+              const h = el.scrollHeight || 45
+              this.textareaHeight = Math.min(Math.max(h, 45), 200)
+              return
+            }
+          }
+        } catch (e) {}
+
+        // fallback：按行数估算
+        const lines = String(this.userInput || '').split('\n').length
+        const h2 = 24 * Math.min(lines, 8) + 21
+        this.textareaHeight = Math.min(Math.max(h2, 45), 200)
       })
     },
 
+    // =========================
+    // markdown-lite（修复旧版 langLine 未定义问题）
+    // =========================
+    formatMessage(message) {
+      if (!message) return ''
+      return this.renderMarkdownLite(String(message))
+    },
+
+    renderMarkdownLite(src) {
+      const s = String(src || '')
+      if (!s) return ''
+
+      const toTextHtml = (t) => this.escapeHtml(t).replace(/\n/g, '<br>')
+      const toCodeHtml = (code, lang) => {
+        const safeLang = (lang || '').trim()
+        const langBadge = safeLang ? `<div class="code-lang">${this.escapeHtml(safeLang)}</div>` : ''
+        return `<div class="code-wrap">${langBadge}<pre class="code-block"><code>${this.escapeHtml(code)}</code></pre></div>`
+      }
+
+      let out = ''
+      let i = 0
+      let inCode = false
+      let lang = ''
+
+      while (i < s.length) {
+        const fence = s.indexOf('```', i)
+        if (fence === -1) {
+          const tail = s.slice(i)
+          out += inCode ? toCodeHtml(tail, lang) : toTextHtml(tail)
+          break
+        }
+
+        if (!inCode) {
+          out += toTextHtml(s.slice(i, fence))
+          // read lang line
+          let j = fence + 3
+          let langLine = ''
+          while (j < s.length && s[j] !== '\n' && s[j] !== '\r') {
+            langLine += s[j]
+            j++
+          }
+          if (j < s.length && s[j] === '\r') j++
+          if (j < s.length && s[j] === '\n') j++
+          lang = (langLine || '').trim()
+          inCode = true
+          i = j
+        } else {
+          out += toCodeHtml(s.slice(i, fence), lang)
+          inCode = false
+          lang = ''
+          i = fence + 3
+        }
+      }
+
+      return out
+    },
+
+    escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    },
+
+    // =========================
+    // 任务编辑（原逻辑保留）
+    // =========================
     editTask(task, taskPath) {
       this.editingTask = JSON.parse(JSON.stringify(task))
       this.editingTaskPath = taskPath
     },
-
     cancelEdit() {
       this.editingTask = null
       this.editingTaskPath = null
     },
-
     submitTaskEdit() {
       if (!this.editingTask || !this.editingTask.task_id) {
         uni.showToast({ title: '任务ID不存在', icon: 'none' })
@@ -276,31 +620,36 @@ export default {
         success: (res) => {
           if (res.statusCode === 200 && res.data?.status === 'success') {
             uni.showToast({ title: '任务已更新', icon: 'success' })
+            // 尝试回填到当前 jsonData
             if (this.editingTaskPath) {
-              let target = this.messages[this.editingTaskPath[0]].jsonData
+              let target = this.messages[this.editingTaskPath[0]]
               for (let i = 1; i < this.editingTaskPath.length - 1; i++) {
-                target = target[this.editingTaskPath[i]]
+                target = target?.[this.editingTaskPath[i]]
               }
               const lastKey = this.editingTaskPath[this.editingTaskPath.length - 1]
-              target[lastKey] = { ...target[lastKey], ...this.editingTask }
+              if (target && target[lastKey]) target[lastKey] = { ...target[lastKey], ...this.editingTask }
             }
-            this.editingTask = null
-            this.editingTaskPath = null
+            this.cancelEdit()
           } else {
             uni.showToast({ title: res.data?.message || '更新失败', icon: 'none' })
           }
         },
         fail: (err) => {
-          console.error('更新任务失败:', err)
+          console.error('[detail] update task fail:', err)
           uni.showToast({ title: '更新失败', icon: 'none' })
         }
       })
     },
 
+    // =========================
+    // JSON 流处理：清理/补全/解析（按“字段齐了就显示”）
+    // =========================
     cleanJsonStream(text) {
       let out = String(text || '')
+      // 兼容某些 SSE 风格 data:
       out = out.replace(/(^|\n)\s*data:\s*/g, '$1')
-      out = out.replace(/^<<<JSON_BEGIN>>>\s*/i, '').replace(/<<<JSON_END>>>\s*$/i, '')
+      // 防御：如果标记被拼进来了，也去掉
+      out = out.replace(/<<<JSON_BEGIN>>>/g, '').replace(/<<<JSON_END>>>/g, '')
       return out
     },
 
@@ -308,27 +657,14 @@ export default {
       let text = String(jsonText || '').trim()
       if (!text) return null
 
+      // 兼容 ```json ... ```
       text = text.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim()
-      text = this.cleanJsonStream(text)
 
       try {
         return JSON.parse(text)
       } catch (e) {
         return null
       }
-    },
-
-    collectReadyTasks(json) {
-      if (!json || !Array.isArray(json.tasks)) return []
-      const ready = []
-      const walk = (task, path) => {
-        if (!task) return
-        if (this.isTaskReady(task)) ready.push({ path, title: task.title || '' })
-        const subs = Array.isArray(task.subtasks) ? task.subtasks : []
-        subs.forEach((st, idx) => walk(st, [...path, 'subtasks', idx]))
-      }
-      json.tasks.forEach((t, idx) => walk(t, ['tasks', idx]))
-      return ready
     },
 
     isTaskReady(task) {
@@ -365,6 +701,43 @@ export default {
       return nextJson
     },
 
+    makeJsonSnapshot(partial) {
+      const s = String(partial || '')
+      let inStr = false
+      let esc = false
+      const stack = []
+
+      for (let i = 0; i < s.length; i++) {
+        const ch = s[i]
+        if (inStr) {
+          if (esc) { esc = false; continue }
+          if (ch === '\\') { esc = true; continue }
+          if (ch === '"') inStr = false
+          continue
+        }
+        if (ch === '"') { inStr = true; continue }
+        if (ch === '{') stack.push('}')
+        else if (ch === '[') stack.push(']')
+        else if (ch === '}' || ch === ']') {
+          if (stack.length && stack[stack.length - 1] === ch) stack.pop()
+        }
+      }
+
+      let out = s
+      if (inStr) out += '"'
+      while (stack.length) out += stack.pop()
+
+      // 去掉结尾多余逗号
+      out = out.replace(/,\s*([}\]])/g, '$1')
+      out = out.replace(/,\s*$/g, '')
+      return out
+    },
+
+    /**
+     * 解析部分任务计划：
+     * - 只要某个 task 的 5 个关键字段都出现（title/description/estimated_time/estimated_time_unit/priority），就会被加入结果
+     * - 即使 task 本身未闭合 / subtasks 未输出完，也会立即出现在 jsonData 中
+     */
     parsePartialTaskPlan(partialText) {
       const raw = String(partialText || '')
       const start = raw.indexOf('{')
@@ -377,9 +750,7 @@ export default {
       let foundAny = false
 
       const isWs = (ch) => ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t'
-      const skipWs = () => {
-        while (i < len && isWs(s[i])) i++
-      }
+      const skipWs = () => { while (i < len && isWs(s[i])) i++ }
       const isDelim = (ch) => ch === ',' || ch === '}' || ch === ']' || isWs(ch)
 
       const parseString = () => {
@@ -392,29 +763,25 @@ export default {
           if (ch === '"') return { ok: true, value: outStr }
           if (ch === '\\') {
             if (i >= len) { i = startI; return { ok: false } }
-            const esc = s[i++]
-            if (esc === '"' || esc === '\\' || esc === '/') outStr += esc
-            else if (esc === 'b') outStr += '\b'
-            else if (esc === 'f') outStr += '\f'
-            else if (esc === 'n') outStr += '\n'
-            else if (esc === 'r') outStr += '\r'
-            else if (esc === 't') outStr += '\t'
-            else if (esc === 'u') {
+            const escCh = s[i++]
+            if (escCh === '"' || escCh === '\\' || escCh === '/') outStr += escCh
+            else if (escCh === 'b') outStr += '\b'
+            else if (escCh === 'f') outStr += '\f'
+            else if (escCh === 'n') outStr += '\n'
+            else if (escCh === 'r') outStr += '\r'
+            else if (escCh === 't') outStr += '\t'
+            else if (escCh === 'u') {
               if (i + 4 > len) { i = startI; return { ok: false } }
               const hex = s.slice(i, i + 4)
-              if (!/^[0-9a-fA-F]{4}$/.test(hex)) {
-                outStr += 'u' + hex
-                i += 4
-              } else {
+              if (/^[0-9a-fA-F]{4}$/.test(hex)) {
                 outStr += String.fromCharCode(parseInt(hex, 16))
                 i += 4
+              } else {
+                outStr += 'u' + hex
+                i += 4
               }
-            } else {
-              outStr += esc
-            }
-          } else {
-            outStr += ch
-          }
+            } else outStr += escCh
+          } else outStr += ch
         }
         i = startI
         return { ok: false }
@@ -426,7 +793,7 @@ export default {
         if (!m) return { ok: false }
         const numStr = m[0]
         const nextCh = s[i + numStr.length]
-        if (i + numStr.length >= len || (nextCh && !isDelim(nextCh))) {
+        if (i + numStr.length < len && nextCh && !isDelim(nextCh)) {
           i = startI
           return { ok: false }
         }
@@ -438,26 +805,22 @@ export default {
         skipWs()
         if (i >= len) return { ok: false }
         const ch = s[i]
-        if (ch === '"') {
-          const r = parseString()
-          return r.ok ? { ok: true } : { ok: false }
-        }
+        if (ch === '"') return parseString().ok ? { ok: true } : { ok: false }
         if (ch === '{' || ch === '[') {
           const startI = i
-          let inStr = false
-          let esc = false
-          const stack = []
-          stack.push(ch === '{' ? '}' : ']')
+          let inStr2 = false
+          let esc2 = false
+          const stack = [ch === '{' ? '}' : ']']
           i++
           while (i < len && stack.length) {
             const c = s[i++]
-            if (inStr) {
-              if (esc) { esc = false; continue }
-              if (c === '\\') { esc = true; continue }
-              if (c === '"') inStr = false
+            if (inStr2) {
+              if (esc2) { esc2 = false; continue }
+              if (c === '\\') { esc2 = true; continue }
+              if (c === '"') inStr2 = false
               continue
             }
-            if (c === '"') { inStr = true; continue }
+            if (c === '"') { inStr2 = true; continue }
             if (c === '{') stack.push('}')
             else if (c === '[') stack.push(']')
             else if (c === '}' || c === ']') {
@@ -467,10 +830,9 @@ export default {
           if (stack.length) { i = startI; return { ok: false } }
           return { ok: true }
         }
-        const num = parseNumber()
-        if (num.ok) return { ok: true }
-        const lits = ['true', 'false', 'null']
-        for (const lit of lits) {
+        const nr = parseNumber()
+        if (nr.ok) return { ok: true }
+        for (const lit of ['true', 'false', 'null']) {
           if (s.startsWith(lit, i)) {
             const nextCh = s[i + lit.length]
             if (i + lit.length < len && nextCh && !isDelim(nextCh)) return { ok: false }
@@ -479,36 +841,6 @@ export default {
           }
         }
         return { ok: false }
-      }
-
-      const parseTaskArray = () => {
-        const arr = []
-        if (s[i] !== '[') return { ok: false, value: [] }
-        i++
-        skipWs()
-        if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
-
-        while (i < len) {
-          skipWs()
-          if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
-
-          const tr = parseTaskObject()
-          if (!tr.ok) {
-            return arr.length ? { ok: true, value: arr, complete: false } : { ok: false, value: [] }
-          }
-
-          const t = tr.value
-          if (this.isTaskReady(t)) arr.push(t)
-          if (!tr.complete) return { ok: true, value: arr, complete: false }
-
-          skipWs()
-          if (i < len && s[i] === ',') { i++; continue }
-          if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
-
-          return { ok: true, value: arr, complete: false }
-        }
-
-        return { ok: true, value: arr, complete: false }
       }
 
       const parseTaskObject = () => {
@@ -566,6 +898,36 @@ export default {
         return { ok: true, value: task, complete: false }
       }
 
+      const parseTaskArray = () => {
+        const arr = []
+        if (s[i] !== '[') return { ok: false, value: [] }
+        i++
+        skipWs()
+        if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
+
+        while (i < len) {
+          skipWs()
+          if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
+
+          const tr = parseTaskObject()
+          if (!tr.ok) {
+            return arr.length ? { ok: true, value: arr, complete: false } : { ok: false, value: [] }
+          }
+
+          const t = tr.value
+          if (this.isTaskReady(t)) arr.push(t) // 字段齐了就立刻显示
+          if (!tr.complete) return { ok: true, value: arr, complete: false }
+
+          skipWs()
+          if (i < len && s[i] === ',') { i++; continue }
+          if (i < len && s[i] === ']') { i++; return { ok: true, value: arr, complete: true } }
+
+          return { ok: true, value: arr, complete: false }
+        }
+
+        return { ok: true, value: arr, complete: false }
+      }
+
       skipWs()
       if (s[i] !== '{') return null
       i++
@@ -596,6 +958,7 @@ export default {
         } else if (key === 'tasks') {
           const ar = parseTaskArray()
           if (!ar.ok) break
+          // 你说 tasks 长度为 1：这里最多拿 1 个（但子任务递归照常解析）
           out.tasks = ar.value.slice(0, 1)
           foundAny = true
         } else {
@@ -610,164 +973,6 @@ export default {
       }
 
       return foundAny ? out : null
-    },
-
-    sendMessage() {
-      if (!this.userInput.trim()) return
-
-      const userMessageText = this.userInput
-      this.messages.push({
-        role: 'user',
-        content: userMessageText,
-        thinking: '',
-        thinkingMeta: null,
-        jsonData: null,
-        jsonBlocks: null,
-        readyTasks: []
-      })
-      this.userInput = ''
-      this.textareaHeight = 45
-      this.$nextTick(() => this.scrollToBottom())
-
-      const aiMessageIndex = this.messages.length
-      this.messages.push({
-        role: 'assistant',
-        content: '',
-        thinking: '',
-        thinkingMeta: { open: false, active: false, startMs: null, endMs: null, durationSec: 0 },
-        jsonData: null,
-        jsonBlocks: null,
-        readyTasks: []
-      })
-      this.$nextTick(() => this.scrollToBottom())
-
-      const token = getToken()
-      const streamUrl = `${API_BASE_URL.replace(/\/$/, '')}/ai/chat-stream/`
-      const self = this
-
-      uni.request({
-        url: streamUrl,
-        method: 'POST',
-        header: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        data: {
-          time: new Date().toISOString(),
-          token: getToken(),
-          message: userMessageText,
-          user_id: getUserId(),
-          workspace_id: getCurrentWorkspace().id,
-          project_id: getProjectId().id,
-          system_prompt: null
-        },
-        success: (res) => {
-          if (res.statusCode === 200) {
-            const responseData = res.data || {}
-            let content = responseData.content || responseData.message || ''
-
-            self.messages[aiMessageIndex].content = String(content)
-            if (responseData.thinking) {
-              self.messages[aiMessageIndex].thinking = String(responseData.thinking)
-              self.messages[aiMessageIndex].thinkingMeta.durationSec = 0
-            }
-            self.$nextTick(() => self.scrollToBottom())
-          } else {
-            self.messages[aiMessageIndex].content = '抱歉，请求失败，请稍后再试。'
-            self.$nextTick(() => self.scrollToBottom())
-          }
-        },
-        fail: (err) => {
-          console.error('获取 AI 回复失败:', err)
-          self.messages[aiMessageIndex].content = '抱歉，网络连接出错，请稍后再试。'
-          self.$nextTick(() => self.scrollToBottom())
-        }
-      })
-    },
-
-    makeJsonSnapshot(partial) {
-      const s = String(partial || '')
-      let inStr = false
-      let esc = false
-      const stack = []
-
-      for (let i = 0; i < s.length; i++) {
-        const ch = s[i]
-        if (inStr) {
-          if (esc) { esc = false; continue }
-          if (ch === '\\') { esc = true; continue }
-          if (ch === '"') inStr = false
-          continue
-        }
-        if (ch === '"') { inStr = true; continue }
-        if (ch === '{') stack.push('}')
-        else if (ch === '[') stack.push(']')
-        else if (ch === '}' || ch === ']') {
-          if (stack.length && stack[stack.length - 1] === ch) stack.pop()
-        }
-      }
-
-      let out = s
-      if (inStr) out += '"'
-      while (stack.length) out += stack.pop()
-
-      out = out.replace(/,\s*([}\]])/g, '$1')
-      out = out.replace(/,\s*$/g, '')
-      return out
-    },
-
-    buildBlocksFromJson(json) {
-      const mkId = (p) => p.join('.')
-
-      const taskToBlock = (task, path) => {
-        const block = {
-          id: mkId(path),
-          type: 'task',
-          title: task.title || '',
-          description: task.description || '',
-          meta: {
-            estimated_time: task.estimated_time,
-            estimated_time_unit: task.estimated_time_unit,
-            priority: task.priority
-          },
-          open: true,
-          children: []
-        }
-
-        const subs = Array.isArray(task.subtasks) ? task.subtasks : []
-        block.children = subs.map((st, i) => taskToBlock(st, [...path, 'subtasks', String(i)]))
-        return block
-      }
-
-      const blocks = []
-      blocks.push({
-        id: 'main_goal',
-        type: 'main_goal',
-        title: 'main_goal',
-        value: json?.main_goal || '',
-        open: true,
-        children: []
-      })
-
-      const tasks = Array.isArray(json?.tasks) ? json.tasks : []
-      blocks.push({
-        id: 'tasks',
-        type: 'tasks',
-        title: 'tasks',
-        open: true,
-        children: tasks.map((t, i) => taskToBlock(t, ['tasks', String(i)]))
-      })
-
-      blocks.push({
-        id: 'summary',
-        type: 'summary',
-        title: 'summary',
-        value: json?.summary || '',
-        open: true,
-        children: []
-      })
-
-      return blocks
     }
   }
 }
