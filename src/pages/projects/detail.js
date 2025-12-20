@@ -375,6 +375,24 @@ export default {
         }
       }
 
+      // 处理剩余缓冲区内容的函数
+      const processRemainingBuffer = () => {
+        // 处理剩余的pending内容
+        if (pending) {
+          if (mode === 'thinking') {
+            thinkingText += pending
+          } else if (mode === 'json') {
+            jsonText += pending
+          } else {
+            visibleText += pending
+          }
+          pending = ''
+        }
+        
+        // 重置模式
+        mode = 'normal'
+      }
+
       // ui flush throttle
       let lastUiMs = 0
       const flushUi = (force = false) => {
@@ -433,8 +451,10 @@ export default {
             const tail = decodeChunk(res.data)
             if (tail && !hasChunks) {
               processStreamText(tail)
+              processRemainingBuffer() // 处理剩余缓冲区
               flushUi(true)
             } else if(!hasChunks) {
+              processRemainingBuffer() // 处理剩余缓冲区
               flushUi(true)
             }
           } else {
@@ -485,6 +505,9 @@ export default {
           processStreamText(chunk)
           flushUi(false)
         })
+      } else {
+        // 如果没有 onChunkReceived，则在请求完成后处理剩余缓冲区
+        processRemainingBuffer()
       }
     },
 
