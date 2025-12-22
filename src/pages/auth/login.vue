@@ -2,7 +2,7 @@
   <view class="auth-page">
     <view class="auth-card">
       <image src="/static/logo.png" class="auth-brand" />
-      <text class="auth-title">登录到 Uni Workspace</text>
+      <text class="auth-title">登录到 星之梦</text>
 
       <view class="form-row">
         <label class="field-label">邮箱</label>
