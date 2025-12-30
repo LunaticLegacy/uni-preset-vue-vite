@@ -3,45 +3,53 @@
   align-items: center; 
   justify-content: center; 
   padding: 40rpx; 
-  min-height: 100vh; 
-  background: linear-gradient(180deg, #f7fafc, #eef2f7); 
+  min-height: 100vh;
+  background: linear-gradient(180deg, var(--bg-secondary), var(--bg-primary));
+  transition: background 0.3s ease;
 }
 
 .auth-card { 
   width: 740rpx; 
   max-width: 92%; 
-  background: #fff; 
+  background: var(--bg-primary); 
   border-radius: 16rpx; 
   padding: 36rpx; 
   box-shadow: 0 6rpx 20rpx rgba(8, 28, 45, 0.06); 
   display: flex; 
   flex-direction: column; 
-  align-items: center; 
+  align-items: center;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .auth-card {
+  box-shadow: 0 6rpx 20rpx rgba(0, 0, 0, 0.3);
 }
 
 .auth-brand { 
   width: 120rpx; 
   height: 120rpx; 
-  margin-bottom: 12rpx; 
+  margin-bottom: 12rpx;
 }
 
 .auth-title { 
   font-size: 32rpx; 
-  color: #1f2937; 
-  margin-bottom: 18rpx; 
+  color: var(--text-primary); 
+  margin-bottom: 18rpx;
+  transition: color 0.3s ease;
 }
 
 .form-row { 
   width: 100%; 
   margin-bottom: 14rpx; 
   display: flex; 
-  flex-direction: column; 
+  flex-direction: column;
 }
 
 .field-label { 
   font-size: 24rpx; 
-  color: #374151; 
-  margin-bottom: 8rpx; 
+  color: var(--text-secondary); 
+  margin-bottom: 8rpx;
+  transition: color 0.3s ease;
 }
 
 .input-control { 
@@ -49,15 +57,21 @@
   height: 40px; 
   padding: 14rpx; 
   border-radius: 10rpx; 
-  border: 1rpx solid #e6e9ee; 
+  border: 1rpx solid var(--border-color); 
   box-sizing: border-box; 
   font-size: 26rpx; 
-  color: #111827; 
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.input-control:focus { 
-  outline: none; 
-  border-color: #60a5fa; 
+.input-control:focus {
+  outline: none;
+  border-color: #4a9eff;
+}
+
+[data-theme="dark"] .input-control:focus {
+  border-color: #87ceeb;
 }
 
 .btn-primary { 
@@ -67,35 +81,38 @@
   color: #fff; 
   padding: 16rpx; 
   border-radius: 10rpx; 
-  font-size: 28rpx; 
+  font-size: 28rpx;
+  transition: background 0.3s ease;
 }
 
 .btn-primary:active { 
-  opacity: 0.95; 
+  opacity: 0.95;
+  background: #059669;
 }
 
 .auth-footer { 
   width: 100%; 
   display: flex; 
   justify-content: center; 
-  margin-top: 12rpx; 
+  margin-top: 12rpx;
 }
 
 .link { 
-  color: #2563eb; 
+  color: #2563eb;
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 640px) {
   .auth-card { 
     padding: 24rpx; 
-    width: 100%; 
+    width: 100%;
   }
   
   .auth-title { 
-    font-size: 28rpx; 
+    font-size: 28rpx;
   }
   
   .input-control { 
-    font-size: 24rpx; 
+    font-size: 24rpx;
   }
 }

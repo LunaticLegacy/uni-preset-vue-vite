@@ -1,21 +1,25 @@
 .profile-container { 
-  padding: 24rpx; 
+  padding: 24rpx;
 }
 
 .screen-title { 
   font-size: 36rpx; 
-  color: #333; 
-  margin: 24rpx 0; 
+  color: var(--text-primary); 
+  margin: 24rpx 0;
+  transition: color 0.3s ease;
 }
 
 .form-field { 
-  margin: 12rpx 0; 
+  margin: 12rpx 0;
 }
 
 .text-input { 
-  border: 1px solid #c8c7cc; 
+  border: 1px solid var(--border-color); 
   border-radius: 6rpx; 
-  padding: 16rpx; 
+  padding: 16rpx;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .primary-button { 
@@ -23,7 +27,12 @@
   color: #fff; 
   border-radius: 6rpx; 
   padding: 16rpx; 
-  margin-top: 16rpx; 
+  margin-top: 16rpx;
+  transition: background-color 0.3s ease;
+}
+
+.primary-button:active {
+  background-color: #0056b3;
 }
 
 .danger-button { 
@@ -31,5 +40,10 @@
   color: #fff; 
   border-radius: 6rpx; 
   padding: 16rpx; 
-  margin-top: 12rpx; 
+  margin-top: 12rpx;
+  transition: background-color 0.3s ease;
+}
+
+.danger-button:active {
+  background-color: #c73d35;
 }

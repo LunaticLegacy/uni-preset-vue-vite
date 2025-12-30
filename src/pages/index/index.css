@@ -4,8 +4,9 @@
 
 .page-heading {
   font-size: 34rpx;
-  color: #424242;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
+  transition: color 0.3s ease;
 }
 
 .card-grid {
@@ -17,10 +18,16 @@
 
 .card {
   padding: 30rpx 20rpx;
-  background: #ffffff;
+  background: var(--bg-primary);
   border-radius: 10rpx;
   text-align: center;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .card {
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
 }
 
 .nav-btn {
@@ -29,12 +36,18 @@
   color: #ffffff;
   border-radius: 45rpx;
   padding: 20rpx 60rpx;
+  transition: background-color 0.3s ease;
+}
+
+.nav-btn:active {
+  background-color: #0056b3;
 }
 
 .welcome-message {
   font-size: 28rpx;
-  color: #666;
+  color: var(--text-secondary);
   margin-bottom: 30rpx;
+  transition: color 0.3s ease;
 }
 
 .dashboard-stats {
@@ -46,23 +59,26 @@
 .stat-card {
   flex: 1;
   padding: 20rpx;
-  background: #f8f8f8;
+  background: var(--bg-secondary);
   border-radius: 10rpx;
   text-align: center;
   margin: 0 10rpx;
+  transition: background 0.3s ease;
 }
 
 .stat-value {
   display: block;
   font-size: 28rpx;
   font-weight: bold;
-  color: #333;
+  color: var(--text-primary);
   margin-bottom: 10rpx;
+  transition: color 0.3s ease;
 }
 
 .stat-label {
   font-size: 24rpx;
-  color: #999;
+  color: var(--text-tertiary);
+  transition: color 0.3s ease;
 }
 
 .quick-actions {
@@ -74,5 +90,6 @@
   font-size: 30rpx;
   font-weight: bold;
   margin-bottom: 20rpx;
-  color: #333;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }

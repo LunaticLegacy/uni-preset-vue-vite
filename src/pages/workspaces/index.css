@@ -1,9 +1,48 @@
-.page-root { padding: 24rpx }
-.page-card { background: #fff; border-radius: 12rpx; box-shadow: 0 8rpx 24rpx rgba(8, 28, 45, 0.06); overflow: hidden }
-.card-header { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; border-bottom: 1rpx solid #f1f5f9 }
-.page-title { font-size: 32rpx; color: #111827 }
-.header-actions { display: flex; gap: 12rpx; align-items: center }
-.input-sm { padding: 12rpx; border-radius: 8rpx; border: 1rpx solid #e6e9ee }
+.page-root { 
+  padding: 24rpx;
+}
+
+.page-card { 
+  background: var(--bg-primary); 
+  border-radius: 12rpx; 
+  box-shadow: 0 8rpx 24rpx rgba(8, 28, 45, 0.06); 
+  overflow: hidden;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .page-card {
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
+}
+
+.card-header { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  padding: 20rpx 24rpx; 
+  border-bottom: 1rpx solid var(--border-color);
+  transition: border-color 0.3s ease;
+}
+
+.page-title { 
+  font-size: 32rpx; 
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.header-actions { 
+  display: flex; 
+  gap: 12rpx; 
+  align-items: center;
+}
+
+.input-sm { 
+  padding: 12rpx; 
+  border-radius: 8rpx; 
+  border: 1rpx solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
 
 /* 阿里云风格按钮样式 */
 .btn {
@@ -42,19 +81,20 @@
 }
 
 .btn-secondary {
-  background: #fff;
-  color: #555;
-  border-color: #ddd;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
-  background: #fafafa;
-  border-color: #ccc;
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
 }
 
 .btn-secondary:active {
-  background: #f5f5f5;
-  border-color: #bbb;
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
 }
 
 .btn-danger {
@@ -73,17 +113,66 @@
   border-color: #cc2929;
 }
 
-.card-body { padding: 20rpx }
-.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16rpx }
-.workspace-card { background: #fff; border-radius: 10rpx; padding: 16rpx; box-shadow: 0 4rpx 12rpx rgba(8, 28, 45, 0.04); display: flex; flex-direction: column; justify-content: space-between }
-.workspace-main { cursor: pointer }
-.workspace-title { font-size: 28rpx; color: #0f172a }
-.workspace-sub { color: #6b7280; margin-top: 6rpx }
-.workspace-actions { display: flex; gap: 8rpx; margin-top: 12rpx }
+.card-body { 
+  padding: 20rpx;
+}
 
-.list-state { padding: 20rpx; text-align: center; color: #6b7280 }
-.list-state.error { color: #ef4444 }
+.grid { 
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 16rpx;
+}
+
+.workspace-card { 
+  background: var(--bg-secondary); 
+  border-radius: 10rpx; 
+  padding: 16rpx; 
+  box-shadow: 0 4rpx 12rpx rgba(8, 28, 45, 0.04); 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .workspace-card {
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+}
+
+.workspace-main { 
+  cursor: pointer;
+}
+
+.workspace-title { 
+  font-size: 28rpx; 
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.workspace-sub { 
+  color: var(--text-secondary); 
+  margin-top: 6rpx;
+  transition: color 0.3s ease;
+}
+
+.workspace-actions { 
+  display: flex; 
+  gap: 8rpx; 
+  margin-top: 12rpx;
+}
+
+.list-state { 
+  padding: 20rpx; 
+  text-align: center; 
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
+}
+
+.list-state.error { 
+  color: #ef4444;
+}
 
 @media (max-width: 640px) { 
-  .grid { grid-template-columns: repeat(1, 1fr) } 
+  .grid { 
+    grid-template-columns: repeat(1, 1fr);
+  }
 }

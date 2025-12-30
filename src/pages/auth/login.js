@@ -1,17 +1,33 @@
+import LoginForm from '../../components/auth/LoginForm.vue'
 import { apiPost } from '../../services/http.js'
 import { setToken, setUserId } from '../../utils/storage.js'
+import { getTheme, THEMES } from '../../utils/theme.js'
 
 /**
  * 用户登录页面
  * 处理用户登录逻辑，包括表单验证和身份验证
  */
 export default {
+  components: {
+    LoginForm
+  },
   data() {
     return { 
       email: '', 
       password: '', 
-      showPassword: false 
+      showPassword: false,
+      themeMode: getTheme()
     }
+  },
+
+  computed: {
+    themeAttr() {
+      return this.themeMode === THEMES.DARK ? 'dark' : 'light'
+    }
+  },
+
+  onShow() {
+    this.themeMode = getTheme()
   },
   
   methods: {

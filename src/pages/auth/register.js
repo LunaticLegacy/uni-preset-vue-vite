@@ -1,16 +1,32 @@
+import RegisterForm from '../../components/auth/RegisterForm.vue'
 import { apiPost } from '../../services/http.js'
+import { getTheme, THEMES } from '../../utils/theme.js'
 
 /**
  * 用户注册页面
  * 处理新用户注册逻辑，包括表单验证和账户创建
  */
 export default {
+  components: {
+    RegisterForm
+  },
   data() { 
     return { 
       username: '', 
       email: '', 
-      password: '' 
+      password: '',
+      themeMode: getTheme()
     } 
+  },
+
+  computed: {
+    themeAttr() {
+      return this.themeMode === THEMES.DARK ? 'dark' : 'light'
+    }
+  },
+
+  onShow() {
+    this.themeMode = getTheme()
   },
   
   methods: {

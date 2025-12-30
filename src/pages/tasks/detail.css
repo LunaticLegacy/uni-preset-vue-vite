@@ -3,15 +3,21 @@
 }
 
 .page-card {
-  background: #fff;
+  background: var(--bg-primary);
   border-radius: 12rpx;
   box-shadow: 0 8rpx 24rpx rgba(8, 28, 45, 0.06);
   overflow: hidden;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+[data-theme="dark"] .page-card {
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
 }
 
 .card-header {
   padding: 20rpx 24rpx;
-  border-bottom: 1rpx solid #f1f5f9;
+  border-bottom: 1rpx solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 .header-content {
@@ -22,8 +28,9 @@
 
 .page-title {
   font-size: 36rpx;
-  color: #0f172a;
+  color: var(--text-primary);
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .project-info {
@@ -34,12 +41,14 @@
 }
 
 .project-label {
-  color: #6b7280;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .project-name {
-  color: #1f2937;
+  color: var(--text-primary);
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .card-body {
@@ -49,7 +58,8 @@
 .form-section {
   margin-bottom: 24rpx;
   padding-bottom: 20rpx;
-  border-bottom: 1rpx solid #f3f4f6;
+  border-bottom: 1rpx solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 .form-section:last-of-type {
@@ -59,10 +69,11 @@
 .section-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
   padding-bottom: 8rpx;
-  border-bottom: 2rpx solid #e5e7eb;
+  border-bottom: 2rpx solid var(--border-color);
+  transition: color 0.3s ease, border-color 0.3s ease;
 }
 
 .form-row {
@@ -73,39 +84,45 @@
 
 .field-label {
   font-size: 28rpx;
-  color: #374151;
+  color: var(--text-secondary);
   font-weight: 500;
   margin-bottom: 8rpx;
+  transition: color 0.3s ease;
 }
 
 .input-control {
   width: 100%;
   padding: 12rpx;
   border-radius: 8rpx;
-  border: 1rpx solid #e6e9ee;
+  border: 1rpx solid var(--border-color);
   font-size: 28rpx;
-  background: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   box-sizing: border-box;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .textarea-control {
   width: 100%;
   padding: 12rpx;
   border-radius: 8rpx;
-  border: 1rpx solid #e6e9ee;
+  border: 1rpx solid var(--border-color);
   font-size: 28rpx;
-  background: #fff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 80rpx;
   box-sizing: border-box;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .picker-control {
   padding: 12rpx;
   border-radius: 8rpx;
-  border: 1rpx solid #e6e9ee;
-  background: #fff;
+  border: 1rpx solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 28rpx;
-  color: #1f2937;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .info-row {
@@ -114,15 +131,17 @@
   align-items: flex-start;
   margin-bottom: 12rpx;
   padding: 12rpx 0;
-  border-bottom: 1rpx solid #f3f4f6;
+  border-bottom: 1rpx solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 .info-text {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 28rpx;
   text-align: right;
   flex: 1;
   margin-left: 12rpx;
+  transition: color 0.3s ease;
 }
 
 .form-actions {
@@ -130,7 +149,8 @@
   gap: 12rpx;
   margin-top: 28rpx;
   padding-top: 20rpx;
-  border-top: 1rpx solid #f3f4f6;
+  border-top: 1rpx solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 .btn-primary {
@@ -141,14 +161,24 @@
   border-radius: 8rpx;
   font-size: 28rpx;
   font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:active {
+  background: #1e40af;
 }
 
 .btn-secondary {
   flex: 1;
-  background: #f3f4f6;
-  color: #1f2937;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   padding: 14rpx;
   border-radius: 8rpx;
   font-size: 28rpx;
   font-weight: 500;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.btn-secondary:active {
+  background: var(--bg-tertiary);
 }

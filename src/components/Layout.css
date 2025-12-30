@@ -1,13 +1,13 @@
 .app-root {
   display: flex;
   min-height: 100vh;
-  background: var(--background-color, #F8F8F8);
+  background: var(--bg-secondary);
 }
 
 .sidebar {
   width: 280rpx;
-  background: #ffffff;
-  border-right: 1rpx solid rgba(0,0,0,0.06);
+  background: var(--bg-primary);
+  border-right: 1rpx solid var(--border-color);
   padding: 24rpx;
   box-sizing: border-box;
   display: flex;
@@ -16,7 +16,12 @@
   position: fixed;
   height: 100vh;
   overflow-y: auto;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+[data-theme="dark"] .sidebar {
+  background: #0a0a0a;
+  border-right-color: rgba(255, 255, 255, 0.15);
 }
 
 .sidebar.collapsed {
@@ -34,14 +39,20 @@
   transform: translateY(-50%);
   width: 24rpx;
   height: 24rpx;
-  background: #ffffff;
-  border: 1rpx solid rgba(0,0,0,0.06);
+  background: var(--bg-primary);
+  border: 1rpx solid var(--border-color);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .collapse-toggle {
+  color: #ffffff;
 }
 
 .sidebar-logo {
@@ -63,14 +74,19 @@
   align-items: center;
   padding: 12rpx 16rpx;
   border-radius: 10rpx;
-  color: #333;
+  color: var(--text-primary);
   background: transparent;
   text-align: left;
   white-space: nowrap;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] .sidebar-link {
+  color: #ffffff;
 }
 
 .sidebar-link:active {
-  background: #f5f5f5;
+  background: var(--bg-tertiary);
 }
 
 .icon {
@@ -110,16 +126,18 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 24rpx;
-  background: var(--navigationBarBackgroundColor, #F8F8F8);
-  border-bottom: 1rpx solid rgba(0,0,0,0.04);
+  background: var(--bg-primary);
+  border-bottom: 1rpx solid var(--border-color-subtle);
   position: sticky;
   top: 0;
   z-index: 90;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .topbar-title {
   font-size: 30rpx;
-  color: #333;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .topbar-status {
@@ -129,7 +147,8 @@
 }
 
 .status-text {
-  color: #666;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 .action-link {
@@ -137,19 +156,80 @@
   background: #007bff;
   color: #fff;
   border-radius: 8rpx;
+  transition: background 0.3s ease;
 }
+
+.action-link:active {
+  background: #0056b3;
+}
+
 .btn-secondary {
   background: #4b5563;
 }
+
+.btn-secondary:active {
+  background: #3d4452;
+}
+
 .status-text.muted {
-  color: #999;
+  color: var(--text-tertiary);
+}
+
+.theme-toggle {
+  padding: 8rpx 12rpx;
+  background: var(--bg-secondary);
+  border: 1rpx solid var(--border-color);
+  border-radius: 8rpx;
+  color: var(--text-primary);
+  font-size: 20rpx;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44rpx;
+}
+
+.theme-toggle:active {
+  background: var(--bg-tertiary);
 }
 
 .content-body {
   padding: 24rpx;
-  padding-bottom: 80px; /* 为聊天输入框留出空间 */
-  transition: padding-left 0.3s ease; /* 与侧边栏切换动画同步 */
-  min-height: calc(100vh - 88rpx); /* 减去顶部导航栏高度 */
+  padding-bottom: 80px;
+  transition: padding-left 0.3s ease;
+  min-height: calc(100vh - 88rpx);
+  background: var(--bg-secondary);
+}
+
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 220;
+}
+
+.auth-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.auth-modal-body {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 820rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.auth-modal-body .auth-page {
+  min-height: auto;
+  padding: 0;
+  background: transparent;
 }
 
 @media (max-width: 640px) {
@@ -167,9 +247,13 @@
     overflow: auto;
     height: auto;
     border-right: none;
-    border-bottom: 1rpx solid rgba(0,0,0,0.06);
-    box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.05);
+    border-bottom: 1rpx solid var(--border-color);
+    box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
     z-index: 120;
+  }
+  
+  [data-theme="dark"] .sidebar {
+    box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.3);
   }
   
   .sidebar.collapsed {

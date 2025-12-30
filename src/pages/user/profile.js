@@ -1,16 +1,26 @@
+import Layout from '../../components/Layout.vue'
 import { apiGet, apiPut, apiPost } from '../../services/http.js'
 import { getUserId, clearToken } from '../../utils/storage.js'
+import { getTheme, THEMES } from '../../utils/theme.js'
 
 /**
  * 用户资料页面
  * 管理用户个人信息，支持查看和编辑个人资料
  */
 export default {
+  components: { Layout },
   data() {
     return { 
       full_name: '', 
       display_name: '', 
-      bio: '' 
+      bio: '',
+      themeMode: getTheme()
+    }
+  },
+
+  computed: {
+    themeAttr() {
+      return this.themeMode === THEMES.DARK ? 'dark' : 'light'
     }
   },
   
@@ -30,6 +40,10 @@ export default {
       this.display_name = d.display_name || ''
       this.bio = d.bio || ''
     }
+  },
+
+  onShow() {
+    this.themeMode = getTheme()
   },
   
   methods: {

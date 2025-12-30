@@ -55,40 +55,16 @@
 			}
 		},
 		{
-			"path": "pages/tags/index",
+			"path": "pages/pomodoro/index",
 			"style": {
-				"navigationBarTitleText": "标签"
-			}
-		},
-		{
-			"path": "pages/comments/index",
-			"style": {
-				"navigationBarTitleText": "评论"
-			}
-		},
-		{
-			"path": "pages/attachments/index",
-			"style": {
-				"navigationBarTitleText": "附件"
-			}
-		},
-		{
-			"path": "pages/notifications/index",
-			"style": {
-				"navigationBarTitleText": "通知"
-			}
-		},
-		{
-			"path": "pages/search/index",
-			"style": {
-				"navigationBarTitleText": "搜索"
+				"navigationBarTitleText": "番茄钟"
 			}
 		}
 	],
 	"globalStyle": {
-		"navigationBarTextStyle": "black",
+		"navigationBarTextStyle": "white",
 		"navigationBarTitleText": "uni-app",
-		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"navigationBarBackgroundColor": "#121212",
+		"backgroundColor": "#121212"
 	}
 }
