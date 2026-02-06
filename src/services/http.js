@@ -1,5 +1,5 @@
 import { API_BASE_URL, USE_MOCK_API } from '../config.js'
-import { getToken, clearToken, clearUserId } from '../utils/storage.js'
+import { getToken, clearToken, clearUserId, setAuthAction } from '../utils/storage.js'
 import { mockRequest } from './mock.js'
 
 /**
@@ -170,15 +170,16 @@ export function apiDelete(path, payload, options = {}) {
 function handleUnauthorized(res) {
   clearToken()
   clearUserId()
+  setAuthAction('login')
   uni.showToast({ 
     title: res?.data?.message || '登录状态失效，请重新登录', 
     icon: 'none' 
   })
   setTimeout(() => { 
     if (uni.reLaunch) { 
-      uni.reLaunch({ url: '/pages/auth/login' }) 
+      uni.reLaunch({ url: '/pages/index/index' }) 
     } else { 
-      uni.navigateTo({ url: '/pages/auth/login' }) 
+      uni.navigateTo({ url: '/pages/index/index' }) 
     } 
   }, 200)
 }

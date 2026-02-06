@@ -1,7 +1,7 @@
 import LoginForm from './auth/LoginForm.vue'
 import RegisterForm from './auth/RegisterForm.vue'
 import { apiPost } from '../services/http.js'
-import { getToken, getUserId, setToken, setUserId, clearToken, clearUserId, getProjectId } from '../utils/storage.js'
+import { getToken, getUserId, setToken, setUserId, clearToken, clearUserId, getProjectId, setAuthAction, consumeAuthAction } from '../utils/storage.js'
 import { getTheme, toggleTheme, THEMES } from '../utils/theme.js'
 
 export default {
@@ -41,6 +41,7 @@ export default {
   created() {
     this.refreshAuth()
     this.initTheme()
+    this.applyAuthAction()
   },
   methods: {
     // Initialize theme from storage
@@ -64,6 +65,14 @@ export default {
       this.userId = getUserId() || ''
       this.currentProject = getProjectId()
     },
+    applyAuthAction() {
+      const action = consumeAuthAction()
+      if (action === 'login') {
+        this.openLogin()
+      } else if (action === 'register') {
+        this.openRegister()
+      }
+    },
     // Logout current user
     async logout() {
       try {
@@ -74,7 +83,8 @@ export default {
         clearToken()
         clearUserId()
         this.refreshAuth()
-        uni.reLaunch({ url: '/pages/auth/login' })
+        setAuthAction('login')
+        uni.reLaunch({ url: '/pages/index/index' })
       }
     },
     // Navigate to home page
@@ -121,6 +131,7 @@ export default {
             icon: 'success'
           })
           this.refreshAuth()
+          this.$emit('auth-change', this.authed)
           this.closeAuth()
           this.loginPassword = ''
           this.loginShowPassword = false

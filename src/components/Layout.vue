@@ -40,8 +40,8 @@
           <button class="theme-toggle" @click="toggleDarkMode" :title="isDarkMode ? '切换浅色模式' : '切换深色模式'">
             <text>{{ isDarkMode ? '☀️' : '🌙' }}</text>
           </button>
-          <button v-if="!authed" class="action-link" @click="openLogin">登录</button>
-          <button v-if="!authed" class="action-link" @click="openRegister">注册</button>
+          <button v-if="!authed" class="action-link btn-secondary" @click="openLogin">登录</button>
+          <button v-if="!authed" class="action-link btn-secondary" @click="openRegister">注册</button>
           <button v-else class="action-link btn-secondary" @click="logout">退出</button>
         </view>
       </view>
@@ -62,6 +62,7 @@
           @email-change="loginEmail = $event"
           @password-change="loginPassword = $event"
           @toggle-show="toggleLoginShow"
+          @switch-register="openRegister"
           @submit="submitLogin"
         />
       </view>
@@ -78,6 +79,7 @@
           @username-change="registerUsername = $event"
           @email-change="registerEmail = $event"
           @password-change="registerPassword = $event"
+          @switch-login="openLogin"
           @submit="submitRegister"
         />
       </view>

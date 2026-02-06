@@ -9,7 +9,7 @@
         <input
           class="input-control"
           :value="email"
-          placeholder="请输入邮箱地址"
+          placeholder="邮箱地址"
           @input="onEmailInput"
         />
       </view>
@@ -21,7 +21,7 @@
             :type="showPassword ? 'text' : 'password'"
             class="input-control"
             :value="password"
-            placeholder="请输入密码"
+            placeholder="密码"
             @input="onPasswordInput"
           />
           <button class="eye-toggle" @click="$emit('toggle-show')">
@@ -33,8 +33,8 @@
       <button class="btn-primary" @click="$emit('submit')">登录</button>
 
       <view class="auth-footer">
-        <navigator url="/pages/auth/register" class="link">没有账号？去注册</navigator>
-        <navigator url="/pages/auth/login" class="link muted">忘记密码</navigator>
+        <text class="link" @click="$emit('switch-register')">没有账号？去注册</text>
+        <text class="link muted">忘记密码</text>
       </view>
     </view>
   </view>
@@ -71,5 +71,5 @@ export default {
 }
 </script>
 
-<style src="../../pages/auth/login.css">
+<style src="@/components/auth/auth.css">
 </style>

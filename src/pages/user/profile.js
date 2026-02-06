@@ -1,6 +1,6 @@
 import Layout from '../../components/Layout.vue'
 import { apiGet, apiPut, apiPost } from '../../services/http.js'
-import { getUserId, clearToken } from '../../utils/storage.js'
+import { getUserId, clearToken, setAuthAction } from '../../utils/storage.js'
 import { getTheme, THEMES } from '../../utils/theme.js'
 
 /**
@@ -76,8 +76,9 @@ export default {
     async logout() {
       await apiPost('/user/logout/', {})
       clearToken()
+      setAuthAction('login')
       uni.reLaunch({ 
-        url: '/pages/auth/login' 
+        url: '/pages/index/index' 
       })
     }
   }

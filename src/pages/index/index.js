@@ -30,10 +30,17 @@ export default {
         this.currentProject = getProjectId();
       }
     },
-    goToRegister() {
-      uni.navigateTo({
-        url: '/pages/auth/register'
-      })
+    openLogin() {
+      const layout = this.$refs.layout
+      if (layout && layout.openLogin) {
+        layout.openLogin()
+      }
+    },
+    openRegister() {
+      const layout = this.$refs.layout
+      if (layout && layout.openRegister) {
+        layout.openRegister()
+      }
     },
     logout() {
       uni.clearStorageSync();

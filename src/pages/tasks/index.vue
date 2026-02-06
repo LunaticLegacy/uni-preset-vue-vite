@@ -73,6 +73,7 @@
                           <text class="subtask-title">{{ subtask.title }}</text>
                           <text class="subtask-meta">{{ subtask.status }} · {{ subtask.priority }}</text>
                         </view>
+                        <button class="confirm-complete" @click.stop="confirmSubtaskComplete(subtask)">确认完成</button>
                       </view>
                       <view v-if="subtask.description" class="subtask-desc">{{ subtask.description }}</view>
 
@@ -85,6 +86,7 @@
                               <text class="nested-subtask-title">{{ nested.title }}</text>
                               <text class="nested-subtask-meta">{{ nested.status }} · {{ nested.priority }}</text>
                             </view>
+                            <button class="confirm-complete small" @click.stop="confirmSubtaskComplete(nested)">确认完成</button>
                           </view>
                           <view v-if="nested.description" class="nested-subtask-desc">{{ nested.description }}</view>
 
@@ -97,6 +99,7 @@
                                   <text class="deep-nested-subtask-title">{{ deep.title }}</text>
                                   <text class="deep-nested-subtask-meta">{{ deep.status }} · {{ deep.priority }}</text>
                                 </view>
+                                <button class="confirm-complete small" @click.stop="confirmSubtaskComplete(deep)">确认完成</button>
                               </view>
                               <view v-if="deep.description" class="deep-nested-subtask-desc">{{ deep.description }}</view>
                             </view>

@@ -23,8 +23,13 @@ const THEME_VARS = {
     '--text-primary': '#333333',
     '--text-secondary': '#666666',
     '--text-tertiary': '#999999',
+    '--text-on-accent': '#ffffff',
     '--border-color': 'rgba(0, 0, 0, 0.06)',
-    '--border-color-subtle': 'rgba(0, 0, 0, 0.04)'
+    '--border-color-subtle': 'rgba(0, 0, 0, 0.04)',
+    '--accent-primary': '#2563eb',
+    '--accent-primary-dark': '#1e40af',
+    '--accent-success': '#10b981',
+    '--accent-error': '#ef4444'
   },
   DARK: {
     '--bg-primary': '#0a0a0a',
@@ -33,8 +38,13 @@ const THEME_VARS = {
     '--text-primary': '#ffffff',
     '--text-secondary': '#e0e0e0',
     '--text-tertiary': '#b0b0b0',
+    '--text-on-accent': '#ffffff',
     '--border-color': 'rgba(255, 255, 255, 0.15)',
-    '--border-color-subtle': 'rgba(255, 255, 255, 0.08)'
+    '--border-color-subtle': 'rgba(255, 255, 255, 0.08)',
+    '--accent-primary': '#3b82f6',
+    '--accent-primary-dark': '#2563eb',
+    '--accent-success': '#059669',
+    '--accent-error': '#dc2626'
   }
 }
 

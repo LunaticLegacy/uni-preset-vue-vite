@@ -7,18 +7,6 @@
 			}
 		},
 		{
-			"path": "pages/auth/login",
-			"style": {
-				"navigationBarTitleText": "登录"
-			}
-		},
-		{
-			"path": "pages/auth/register",
-			"style": {
-				"navigationBarTitleText": "注册账号"
-			}
-		},
-		{
 			"path": "pages/user/profile",
 			"style": {
 				"navigationBarTitleText": "个人资料"

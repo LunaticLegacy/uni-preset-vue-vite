@@ -77,25 +77,107 @@ $uni-font-size-paragraph: 15px;
 
 :root,
 [data-theme="light"] {
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8f8f8;
-  --bg-tertiary: #f5f5f5;
-  --text-primary: #333333;
-  --text-secondary: #666666;
-  --text-tertiary: #999999;
-  --border-color: rgba(0, 0, 0, 0.06);
-  --border-color-subtle: rgba(0, 0, 0, 0.04);
+  --font-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong", serif;
+  --font-body: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", "Microsoft YaHei", "Heiti SC", sans-serif;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Base colors */
+  --bg-primary: #fff8ef;
+  --bg-secondary: #f6efe6;
+  --bg-tertiary: #efe4d7;
+  --text-primary: #1f1712;
+  --text-secondary: #5f5247;
+  --text-tertiary: #8a7a6a;
+  --border-color: #e4d6c6;
+  --border-color-subtle: #f1e7db;
+
+  /* Accents */
+  --accent-primary: #e7684a;
+  --accent-primary-hover: #d65b3c;
+  --accent-primary-dark: #c84f34;
+  --accent-secondary: #2c7c8f;
+  --accent-success: #2f9e61;
+  --accent-warning: #d38a1a;
+  --accent-error: #d84b4b;
+  --accent-ink: #2b1f18;
+  --text-on-accent: #fffaf5;
+
+  /* Surfaces */
+  --card-bg: rgba(255, 251, 245, 0.9);
+  --card-bg-strong: #fffdf9;
+  --card-shadow: 0 18rpx 40rpx -18rpx rgba(45, 30, 20, 0.35);
+  --card-shadow-strong: 0 24rpx 60rpx -28rpx rgba(45, 30, 20, 0.45);
+
+  /* Buttons */
+  --btn-primary-bg: #e7684a;
+  --btn-primary-text: #fffaf5;
+  --btn-primary-gradient: linear-gradient(135deg, #f08a5b 0%, #d65b3c 100%);
+  --btn-primary-shadow: 0 12rpx 24rpx -14rpx rgba(231, 104, 74, 0.6);
+  --btn-secondary-bg: #f0e6d9;
+  --btn-secondary-text: #3e332b;
+  --btn-secondary-shadow: 0 10rpx 22rpx -16rpx rgba(45, 30, 20, 0.2);
+  --btn-danger-bg: #d84b4b;
+  --btn-danger-text: #fff5f5;
+
+  /* Shape */
+  --radius-card: 22rpx;
+  --radius-control: 14rpx;
+  --radius-pill: 999rpx;
+
+  /* Ambient */
+  --page-gradient: radial-gradient(1200rpx 900rpx at 8% -8%, rgba(231, 104, 74, 0.18), transparent 60%),
+    radial-gradient(900rpx 700rpx at 110% 0%, rgba(44, 124, 143, 0.18), transparent 55%),
+    linear-gradient(180deg, #f9f2e8 0%, #f6efe6 60%, #f3e9dd 100%);
+  --page-pattern: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.35) 0 12rpx, rgba(255, 255, 255, 0) 12rpx 24rpx);
+  --sidebar-bg: rgba(255, 251, 245, 0.9);
+  --topbar-bg: rgba(255, 251, 245, 0.9);
+  --glass-stroke: rgba(255, 255, 255, 0.7);
+  --focus-ring: 0 0 0 3rpx rgba(231, 104, 74, 0.25);
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #121212;
-  --bg-tertiary: #1f1f1f;
-  --text-primary: #ffffff;
-  --text-secondary: #e0e0e0;
-  --text-tertiary: #b0b0b0;
-  --border-color: rgba(255, 255, 255, 0.15);
-  --border-color-subtle: rgba(255, 255, 255, 0.08);
+  --bg-primary: #161311;
+  --bg-secondary: #111110;
+  --bg-tertiary: #1c1916;
+  --text-primary: #f5efe8;
+  --text-secondary: #c2b2a2;
+  --text-tertiary: #9b8c7c;
+  --border-color: #2b241e;
+  --border-color-subtle: #211c17;
+
+  --accent-primary: #ff7a59;
+  --accent-primary-hover: #ff926f;
+  --accent-primary-dark: #ff6a4a;
+  --accent-secondary: #3bb2c7;
+  --accent-success: #4dd089;
+  --accent-warning: #f0b24a;
+  --accent-error: #ff6a6a;
+  --accent-ink: #f5efe8;
+  --text-on-accent: #1b120d;
+
+  --card-bg: rgba(22, 19, 17, 0.92);
+  --card-bg-strong: #1b1714;
+  --card-shadow: 0 18rpx 46rpx -18rpx rgba(0, 0, 0, 0.65);
+  --card-shadow-strong: 0 26rpx 64rpx -30rpx rgba(0, 0, 0, 0.75);
+
+  --btn-primary-bg: #ff7a59;
+  --btn-primary-text: #1b120d;
+  --btn-primary-gradient: linear-gradient(135deg, #ff8d6b 0%, #ff6f4d 100%);
+  --btn-primary-shadow: 0 12rpx 26rpx -14rpx rgba(255, 122, 89, 0.45);
+  --btn-secondary-bg: #201b16;
+  --btn-secondary-text: #e2d7cc;
+  --btn-secondary-shadow: 0 10rpx 24rpx -16rpx rgba(0, 0, 0, 0.6);
+  --btn-danger-bg: #ff6a6a;
+  --btn-danger-text: #1b0f0f;
+
+  --page-gradient: radial-gradient(1200rpx 900rpx at 8% -8%, rgba(255, 122, 89, 0.2), transparent 60%),
+    radial-gradient(900rpx 700rpx at 110% 0%, rgba(59, 178, 199, 0.18), transparent 55%),
+    linear-gradient(180deg, #0e0f11 0%, #121110 60%, #141312 100%);
+  --page-pattern: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.06) 0 12rpx, rgba(255, 255, 255, 0) 12rpx 24rpx);
+  --sidebar-bg: rgba(20, 18, 16, 0.92);
+  --topbar-bg: rgba(20, 18, 16, 0.92);
+  --glass-stroke: rgba(255, 255, 255, 0.08);
+  --focus-ring: 0 0 0 3rpx rgba(255, 122, 89, 0.25);
 }
 
 page,
@@ -105,4 +187,117 @@ uni-app,
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-body);
+  background-image: var(--page-gradient), var(--page-pattern);
+  background-size: cover, 220rpx 220rpx;
+  background-repeat: no-repeat, repeat;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* 通用按钮样式 */
+.btn {
+  padding: 12rpx 22rpx;
+  border-radius: var(--radius-pill);
+  border: 1rpx solid var(--border-color);
+  font-size: 28rpx;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  min-height: 44rpx;
+  min-width: 80rpx;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  box-shadow: var(--btn-secondary-shadow);
+  letter-spacing: 0.5rpx;
+}
+
+.btn-primary {
+  background: var(--btn-primary-bg);
+  background-image: var(--btn-primary-gradient);
+  color: var(--btn-primary-text);
+  border: none;
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.btn-primary:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+}
+
+.btn-danger {
+  background-color: var(--btn-danger-bg);
+  color: var(--btn-danger-text);
+}
+
+/* 通用卡片样式 */
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  padding: 24rpx;
+  transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+  border: 1rpx solid var(--border-color);
+  backdrop-filter: blur(10rpx);
+}
+
+.card:hover {
+  box-shadow: var(--card-shadow-strong);
+  transform: translateY(-4rpx);
+}
+
+/* 通用表单元素样式 */
+.input-control, input, textarea {
+  background: var(--card-bg-strong);
+  border: 1rpx solid var(--border-color);
+  border-radius: var(--radius-control);
+  padding: 12rpx 16rpx;
+  color: var(--text-primary);
+  font-size: 28rpx;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+}
+
+.input-control:focus, input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-tertiary);
+}
+
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(12rpx); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float-soft {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6rpx); }
+  100% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

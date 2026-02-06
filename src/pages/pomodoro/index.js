@@ -4,7 +4,6 @@ const POMODORO_MODES = {
   '25_5': { work: 25, break: 5 },
   '50_10': { work: 50, break: 10 }
 }
-
 export default {
   components: { Layout },
   data() {

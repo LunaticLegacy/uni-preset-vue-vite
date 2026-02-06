@@ -39,7 +39,7 @@
       <button class="btn-primary" @click="$emit('submit')">注册账号</button>
 
       <view class="auth-footer">
-        <navigator url="/pages/auth/login" class="link">已有账号？去登录</navigator>
+        <text class="link" @click="$emit('switch-login')">已有账号？去登录</text>
       </view>
     </view>
   </view>
@@ -79,5 +79,5 @@ export default {
 }
 </script>
 
-<style src="../../pages/auth/register.css">
+<style src="@/components/auth/auth.css">
 </style>

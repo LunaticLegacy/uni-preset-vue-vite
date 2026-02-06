@@ -1,102 +1,147 @@
 .pomodoro-page {
-  padding: 24rpx;
-  background: var(--bg-secondary);
+  padding: 32rpx;
+  background: transparent;
   color: var(--text-primary);
-  min-height: calc(100vh - 88rpx);
+  min-height: calc(100vh - 96rpx);
   transition: background 0.3s ease, color 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .pomodoro-card {
-  background: var(--bg-primary);
-  border-radius: 14rpx;
-  border: 1rpx solid var(--border-color);
-  padding: 20rpx;
-  box-shadow: 0 8rpx 24rpx rgba(8, 28, 45, 0.06);
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  border: 1rpx solid var(--glass-stroke);
+  padding: 40rpx;
+  box-shadow: var(--card-shadow);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-[data-theme="dark"] .pomodoro-card {
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
+  max-width: 500rpx;
+  width: 100%;
+  text-align: center;
+  backdrop-filter: blur(12rpx);
+  animation: fade-up 0.5s ease both;
 }
 
 .pomodoro-title {
-  font-size: 32rpx;
+  font-size: 40rpx;
   color: var(--text-primary);
-  margin-bottom: 16rpx;
+  margin-bottom: 24rpx;
+  font-weight: 700;
   transition: color 0.3s ease;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: var(--font-display);
+  letter-spacing: 1rpx;
 }
 
 .pomodoro-modes {
   display: flex;
   gap: 12rpx;
   flex-wrap: wrap;
-  margin-bottom: 16rpx;
+  margin-bottom: 24rpx;
+  justify-content: center;
 }
 
 .pomodoro-chip {
-  padding: 10rpx 18rpx;
+  padding: 10rpx 24rpx;
   border-radius: 999px;
   border: 1rpx solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 24rpx;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  background: var(--card-bg-strong);
+  color: var(--text-secondary);
+  font-size: 26rpx;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 .pomodoro-chip.active {
-  background: #2563eb;
-  border-color: #2563eb;
-  color: #fff;
+  background: var(--btn-primary-gradient);
+  border-color: transparent;
+  color: var(--btn-primary-text);
+  box-shadow: var(--btn-primary-shadow);
+}
+
+.pomodoro-chip:active {
+  transform: scale(0.95);
 }
 
 .pomodoro-phase {
   display: block;
-  font-size: 26rpx;
+  font-size: 32rpx;
   color: var(--text-secondary);
   transition: color 0.3s ease;
+  font-weight: 500;
+  margin-bottom: 12rpx;
+  text-transform: uppercase;
+  letter-spacing: 1rpx;
 }
 
 .pomodoro-time {
   display: block;
-  font-size: 52rpx;
-  font-weight: 700;
+  font-size: 72rpx;
+  font-weight: 800;
   color: var(--text-primary);
-  margin: 12rpx 0 20rpx;
-  letter-spacing: 2rpx;
+  margin: 20rpx 0 30rpx;
+  letter-spacing: 4rpx;
   transition: color 0.3s ease;
+  font-family: var(--font-mono);
 }
 
 .pomodoro-actions {
   display: flex;
-  gap: 12rpx;
+  gap: 16rpx;
 }
 
 .pomodoro-btn {
   flex: 1;
-  padding: 12rpx 16rpx;
-  border-radius: 10rpx;
+  padding: 16rpx 16rpx;
+  border-radius: var(--radius-pill);
   border: 1rpx solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 26rpx;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-size: 28rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 44rpx;
+  box-shadow: var(--btn-secondary-shadow);
 }
 
 .pomodoro-btn.secondary {
   background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
-.pomodoro-btn:active,
-.pomodoro-chip:active {
-  background: var(--bg-tertiary);
+.pomodoro-btn:active {
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
-@media (max-width: 640px) {
+.pomodoro-btn:not(.secondary) {
+  background: var(--btn-primary-gradient);
+  color: var(--btn-primary-text);
+  border: none;
+  box-shadow: var(--btn-primary-shadow);
+}
+
+@media (max-width: 768px) {
   .pomodoro-page {
     padding: 16rpx;
+    align-items: flex-start;
+  }
+
+  .pomodoro-card {
+    padding: 30rpx 20rpx;
   }
 
   .pomodoro-time {
-    font-size: 44rpx;
+    font-size: 60rpx;
+  }
+  
+  .pomodoro-title {
+    font-size: 32rpx;
   }
 }

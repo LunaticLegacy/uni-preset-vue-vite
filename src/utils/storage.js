@@ -60,6 +60,27 @@ export function clearUserId() {
   } catch (e) {}
 }
 
+// Persist an auth action to open login/register modal after navigation.
+const AUTH_ACTION_KEY = 'auth_action'
+
+export function setAuthAction(action) {
+  try {
+    uni.setStorageSync(AUTH_ACTION_KEY, action || '')
+  } catch (e) {}
+}
+
+export function consumeAuthAction() {
+  try {
+    const action = uni.getStorageSync(AUTH_ACTION_KEY) || ''
+    if (action) {
+      uni.removeStorageSync(AUTH_ACTION_KEY)
+    }
+    return action
+  } catch (e) {
+    return ''
+  }
+}
+
 /**
  * 当前工作空间上下文（id/name）
  */

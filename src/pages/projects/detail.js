@@ -1,7 +1,9 @@
 import { API_BASE_URL } from '../../config.js'
 import Layout from '../../components/Layout.vue'
 import RecursiveSubtasks from '../../components/RecursiveSubtasks.vue'
+import TaskItem from '../../components/TaskItem.vue' // 导入TaskItem组件
 import { getProjectId, getToken, getUserId, getCurrentWorkspace } from '../../utils/storage.js'
+import { formatTimeFromMinutes } from '../../utils/time.js'
 
 const MARKERS = {
   THINK_START: '<<<THINKING>>>',
@@ -18,7 +20,7 @@ const MAX_MARKER_LEN = Math.max(
 )
 
 export default {
-  components: { Layout, RecursiveSubtasks },
+  components: { Layout, RecursiveSubtasks, TaskItem }, // 添加TaskItem组件
 
   data() {
     return {
@@ -49,6 +51,8 @@ export default {
       ],
 
       userId: getUserId()
+      ,
+      llmLoading: false
     }
   },
 
@@ -68,12 +72,74 @@ export default {
     console.log('[detail] storedProject=', storedProject)
 
     this.fetchProjectInfo()
+      .then(() => this.fetchLLMContext())
       .then(() => this.fetchTasks())
       .then(() => this.$nextTick(() => this.scrollToBottom()))
       .catch((e) => console.error('[detail] init failed:', e))
   },
 
   methods: {
+    // 更新展开任务ID集合
+    updateExpandedTaskIds(newExpandedTaskIds) {
+      this.expandedTaskIds = newExpandedTaskIds
+    },
+
+    // 转换AI生成的任务数据为显示格式
+    transformTaskForDisplay(task, options = {}) {
+      if (!task) return null
+      // 根据原始时间单位转换为分钟
+      let estimatedMinutes = 0
+      if (typeof task.estimated_minutes === 'number') {
+        estimatedMinutes = task.estimated_minutes
+      } else if (task.estimated_time && task.estimated_time_unit) {
+        switch (task.estimated_time_unit) {
+          case 'minutes':
+            estimatedMinutes = task.estimated_time
+            break
+          case 'hours':
+            estimatedMinutes = task.estimated_time * 60
+            break
+          case 'days':
+            estimatedMinutes = task.estimated_time * 60 * 24
+            break
+          case 'weeks':
+            estimatedMinutes = task.estimated_time * 60 * 24 * 7
+            break
+          default:
+            estimatedMinutes = task.estimated_time // 默认按分钟处理
+        }
+      }
+
+      const taskId = task.task_id ?? task.id ?? task.title ?? Math.random().toString(36).substr(2, 9)
+      const nested = options.subtasks !== undefined ? options.subtasks : task.subtasks
+
+      return {
+        task_id: taskId,
+        id: taskId,
+        title: task.title,
+        description: task.description,
+        status: task.status || task.state || 'backlog',
+        priority: task.priority || 'medium',
+        estimated_minutes: estimatedMinutes,
+        subtasks: this.transformSubtasksForDisplay(nested || [])
+      }
+    },
+
+    transformSubtasksForDisplay(subtasks) {
+      if (!subtasks || !Array.isArray(subtasks)) return []
+      return subtasks
+        .map((st) => {
+          const nodeTask = st && st.task ? st.task : st
+          if (!nodeTask) return null
+          const nodeSubtasks = st && st.subtasks ? st.subtasks : nodeTask.subtasks
+          return this.transformTaskForDisplay(nodeTask, { subtasks: nodeSubtasks })
+        })
+        .filter(Boolean)
+    },
+
+    // 添加时间格式化方法
+    formatTimeFromMinutes,
+
     // =========================
     // 项目详情：/projects/{id}/get/
     // =========================
@@ -131,6 +197,148 @@ export default {
     },
 
     // =========================
+    // LLM 上下文：获取历史对话内容
+    // =========================
+    fetchLLMContext() {
+      return new Promise((resolve) => {
+        this.llmLoading = true
+        const projectId = (getProjectId() && getProjectId().id) ? getProjectId().id : this.id
+        const workspace = getCurrentWorkspace()
+
+        if (!projectId || !workspace?.id) {
+          console.log('[detail] fetchLLMContext: missing projectId or workspace')
+          this.llmLoading = false
+          resolve()
+          return
+        }
+
+        const url = `${API_BASE_URL.replace(/\/$/, '')}/projects/${projectId}/get_context`
+        uni.request({
+          url,
+          method: 'POST',
+          header: {
+            'Content-Type': 'application/json',
+            ...(getToken() ? { Authorization: `Bearer ${getToken()}` } : {})
+          },
+          data: {
+            time: new Date().toISOString(),
+            token: getToken(),
+            workspace_id: workspace.id,
+            project_id: projectId
+          },
+          success: (res) => {
+            try {
+              console.log('[detail] LLM context:', res.statusCode, res.data)
+              if (res.statusCode === 200 && res.data?.contexts && Array.isArray(res.data.contexts)) {
+                const contexts = res.data.contexts
+                if (contexts.length > 0) {
+                  // 清除默认的初始消息，用获取的上下文替换
+                  this.messages = contexts.map((ctx) => {
+                    const fullContent = ctx.content || ''
+                    // 解析特殊标记（THINKING、JSON）
+                    const parsed = this.parseContextMarkers(fullContent)
+
+                    return {
+                      role: ctx.role,
+                      content: parsed.content,
+                      thinking: parsed.thinking,
+                      thinkingMeta: ctx.role === 'assistant' ? { open: false, active: false, startMs: null, endMs: null, durationSec: 0 } : null,
+                      jsonData: parsed.jsonData
+                    }
+                  })
+
+                  // 添加默认的助手欢迎消息（如果最后一条不是助手消息）
+                  if (this.messages.length === 0 || this.messages[this.messages.length - 1].role !== 'assistant') {
+                    this.messages.push({
+                      role: 'assistant',
+                      content: '请输入您需要分解的任务……',
+                      thinking: '',
+                      thinkingMeta: { open: false, active: false, startMs: null, endMs: null, durationSec: 0 },
+                      jsonData: null
+                    })
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('[detail] parse LLM context error:', e)
+            }
+              this.llmLoading = false
+              resolve()
+          },
+          fail: (err) => {
+            console.error('[detail] fetch LLM context fail:', err)
+              this.llmLoading = false
+              resolve()
+          }
+        })
+      })
+    },
+
+    // =========================
+    // 解析上下文中的特殊标记
+    // =========================
+    parseContextMarkers(fullText) {
+      if (!fullText) return { content: '', thinking: '', jsonData: null }
+
+      let content = ''
+      let thinking = ''
+      let jsonText = ''
+
+      const text = String(fullText)
+      let i = 0
+
+      while (i < text.length) {
+        // 检查 THINKING 标记
+        if (text.substr(i, MARKERS.THINK_START.length) === MARKERS.THINK_START) {
+          i += MARKERS.THINK_START.length
+          const endIdx = text.indexOf(MARKERS.THINK_END, i)
+          if (endIdx !== -1) {
+            thinking += text.slice(i, endIdx)
+            i = endIdx + MARKERS.THINK_END.length
+            continue
+          } else {
+            thinking += text.slice(i)
+            break
+          }
+        }
+
+        // 检查 JSON 标记
+        if (text.substr(i, MARKERS.JSON_BEGIN.length) === MARKERS.JSON_BEGIN) {
+          i += MARKERS.JSON_BEGIN.length
+          const endIdx = text.indexOf(MARKERS.JSON_END, i)
+          if (endIdx !== -1) {
+            jsonText += text.slice(i, endIdx)
+            i = endIdx + MARKERS.JSON_END.length
+            continue
+          } else {
+            jsonText += text.slice(i)
+            break
+          }
+        }
+
+        // 普通内容
+        content += text[i]
+        i++
+      }
+
+      // 尝试解析 JSON 数据
+      let jsonData = null
+      if (jsonText && jsonText.trim()) {
+        const cleaned = this.cleanJsonStream(jsonText)
+        const parsed = this.tryParseJson(cleaned)
+        if (parsed) {
+          jsonData = parsed
+        }
+      }
+
+      return {
+        content: content.trim(),
+        thinking: thinking.trim(),
+        jsonData
+      }
+    },
+
+    // =========================
     // 任务列表（原逻辑保留）
     // =========================
     fetchTasks() {
@@ -171,11 +379,10 @@ export default {
                 if (Array.isArray(taskTreeList)) {
                   this.tasks = taskTreeList
                     .map((tree) => {
-                      if (!tree || !tree.task) return null
-                      return {
-                        ...tree.task,
-                        subtasks: this.flattenSubtasks(tree.subtasks)
-                      }
+                      if (!tree) return null
+                      const nodeTask = tree.task || tree
+                      const nodeSubtasks = tree.subtasks || nodeTask.subtasks
+                      return this.transformTaskForDisplay(nodeTask, { subtasks: nodeSubtasks })
                     })
                     .filter(Boolean)
                 } else {
@@ -474,10 +681,18 @@ export default {
             const cleaned = self.cleanJsonStream(jsonText)
             const parsed = self.tryParseJson(cleaned)
             if (parsed) {
-              self.messages[aiIndex].jsonData = self.mergeLocalFieldsIntoTaskPlan(
-                parsed,
-                self.messages[aiIndex].jsonData
-              )
+              // 将AI返回的JSON结构转换为前端显示结构
+              const transformedTasks = Array.isArray(parsed.tasks)
+                ? parsed.tasks.map(t => self.transformTaskForDisplay(t)).filter(Boolean)
+                : []
+              
+              self.messages[aiIndex].jsonData = {
+                ...parsed,
+                tasks: self.mergeLocalFieldsIntoTaskPlan(
+                  { tasks: transformedTasks },
+                  self.messages[aiIndex].jsonData || { tasks: [] }
+                ).tasks
+              }
             }
           }
 
@@ -707,27 +922,21 @@ export default {
       )
     },
 
-    mergeLocalFieldsIntoTaskPlan(nextJson, prevJson) {
-      if (!nextJson) return nextJson
-      if (!prevJson) return nextJson
+    mergeLocalFieldsIntoTaskPlan(newPlan, oldPlan) {
+      if (!oldPlan || !newPlan) return newPlan
+      if (!Array.isArray(oldPlan.tasks) || !Array.isArray(newPlan.tasks)) return newPlan
 
-      const copyTaskLocal = (dst, src) => {
-        if (!dst || !src) return
-        if (src.startDate !== undefined) dst.startDate = src.startDate
-        if (src.endDate !== undefined) dst.endDate = src.endDate
+      // 按task_id合并任务数据，保留用户编辑的本地字段
+      const result = { ...newPlan }
+      result.tasks = newPlan.tasks.map(task => {
+        const oldTask = oldPlan.tasks.find(t => t.task_id === task.task_id)
+        if (oldTask) {
+          return { ...task, ...oldTask }
+        }
+        return task
+      })
 
-        const dstSubs = Array.isArray(dst.subtasks) ? dst.subtasks : []
-        const srcSubs = Array.isArray(src.subtasks) ? src.subtasks : []
-        const n = Math.min(dstSubs.length, srcSubs.length)
-        for (let i = 0; i < n; i++) copyTaskLocal(dstSubs[i], srcSubs[i])
-      }
-
-      const nextTasks = Array.isArray(nextJson.tasks) ? nextJson.tasks : []
-      const prevTasks = Array.isArray(prevJson.tasks) ? prevJson.tasks : []
-      const n = Math.min(nextTasks.length, prevTasks.length)
-      for (let i = 0; i < n; i++) copyTaskLocal(nextTasks[i], prevTasks[i])
-
-      return nextJson
+      return result
     },
 
     makeJsonSnapshot(partial) {

@@ -1,18 +1,18 @@
 <template>
-  <layout page-title="首页">
+  <layout ref="layout" page-title="首页" @auth-change="checkLoginStatus">
     <view class="content-wrapper">
       <!-- 登录前的界面 -->
       <view v-if="!isLoggedIn">
         <text class="page-heading">欢迎使用 Uni Workspace</text>
         <view class="card-grid">
-          <navigator url="/pages/auth/login" class="card">登录</navigator>
-          <navigator url="/pages/auth/register" class="card">注册</navigator>
+          <view class="card" @click="openLogin">登录</view>
+          <view class="card" @click="openRegister">注册</view>
           <navigator url="/pages/user/profile" class="card">个人资料</navigator>
           <navigator url="/pages/workspaces/index" class="card">工作空间</navigator>
           <navigator url="/pages/projects/index" class="card">项目</navigator>
           <navigator url="/pages/tasks/index" class="card">任务</navigator>
         </view>
-        <button class="nav-btn" @click="goToRegister">去注册</button>
+        <button class="nav-btn" @click="openRegister">去注册</button>
       </view>
       
       <!-- 登录后的工作台界面 -->

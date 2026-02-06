@@ -5,7 +5,16 @@
       <view :class="['subtask-name', 'level-' + level]">
         {{ getPrefix(level) }} {{ st.title }}
       </view>
-      <view class="subtask-meta">{{ st.priority }} · {{ st.estimated_time }} {{ st.estimated_time_unit }}</view>
+      <view class="subtask-meta">
+        {{ st.priority }} · 
+        <span v-if="st.estimated_minutes !== undefined && st.estimated_minutes !== null">
+          {{ formatTimeFromMinutes(st.estimated_minutes) }}
+        </span>
+        <span v-else-if="st.estimated_time && st.estimated_time_unit">
+          {{ st.estimated_time }} {{ st.estimated_time_unit }}
+        </span>
+        <span v-else>时间未设置</span>
+      </view>
       <view class="subtask-desc">{{ st.description }}</view>
       
       <!-- 子任务的起始时间和结束时间 -->
@@ -31,6 +40,8 @@
 </template>
 
 <script>
+import { formatTimeFromMinutes } from '../utils/time.js';
+
 export default {
   name: 'RecursiveSubtasks',
   props: {
@@ -50,7 +61,8 @@ export default {
       if (level === 3) return '◦';
       if (level === 4) return '▪';
       return '▫';
-    }
+    },
+    formatTimeFromMinutes
   }
 };
 </script>

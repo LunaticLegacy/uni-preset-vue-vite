@@ -1,5 +1,6 @@
-import { apiGet, apiPost } from '../../services/http.js'
+import { apiGet, apiPost, apiPut } from '../../services/http.js'
 import { getCurrentWorkspace, getProjectId, getUserId, getToken } from '../../utils/storage.js'
+import { formatTimeFromMinutes } from '../../utils/time.js'
 import Layout from '../../components/Layout.vue'
 
 /**
@@ -175,6 +176,45 @@ export default {
       return this.expandedTaskIds.has(key)
     },
 
+    async confirmSubtaskComplete(task) {
+      const taskId = task?.id || task?.task_id
+      if (!taskId) {
+        uni.showToast({ title: '任务ID不存在', icon: 'none' })
+        return
+      }
+      if (task.status === 'done') {
+        uni.showToast({ title: '该任务已完成', icon: 'none' })
+        return
+      }
+
+      const prevStatus = task.status
+      task.status = 'done'
+
+      try {
+        const res = await apiPut(`/tasks/${taskId}/`, {
+          title: task.title,
+          description: task.description,
+          status: 'done',
+          priority: task.priority,
+          assignee_id: task.assignee_id,
+          start_date: task.start_date,
+          end_date: task.end_date,
+          estimated_minutes: task.estimated_minutes
+        })
+
+        if (res.statusCode === 200) {
+          uni.showToast({ title: '已确认完成', icon: 'success' })
+        } else {
+          task.status = prevStatus
+          uni.showToast({ title: res?.data?.message || '确认完成失败', icon: 'none' })
+        }
+      } catch (err) {
+        task.status = prevStatus
+        uni.showToast({ title: '网络错误', icon: 'none' })
+      }
+    },
+
+    formatTimeFromMinutes,
 
   }
 }

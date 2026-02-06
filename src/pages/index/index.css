@@ -1,84 +1,138 @@
 .content-wrapper {
-  padding: 24rpx;
+  padding: 32rpx;
+  max-width: 1240rpx;
+  margin: 0 auto;
+  animation: fade-up 0.5s ease both;
 }
 
 .page-heading {
-  font-size: 34rpx;
+  font-size: 44rpx;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 16rpx;
   transition: color 0.3s ease;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: var(--font-display);
+  letter-spacing: 1rpx;
 }
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200rpx, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220rpx, 1fr));
   gap: 20rpx;
   margin-top: 30rpx;
 }
 
 .card {
-  padding: 30rpx 20rpx;
-  background: var(--bg-primary);
-  border-radius: 10rpx;
+  padding: 36rpx 20rpx;
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
   text-align: center;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  box-shadow: var(--card-shadow);
   color: var(--text-primary);
-  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  border: 1rpx solid var(--glass-stroke);
+  min-height: 140rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  font-weight: 500;
+  backdrop-filter: blur(10rpx);
+  animation: fade-up 0.5s ease both;
+}
+
+.card:hover {
+  transform: translateY(-6rpx);
+  box-shadow: var(--card-shadow-strong);
+  border-color: rgba(231, 104, 74, 0.4);
 }
 
 [data-theme="dark"] .card {
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
 }
+
+.card-grid .card:nth-child(1) { animation-delay: 0.04s; }
+.card-grid .card:nth-child(2) { animation-delay: 0.08s; }
+.card-grid .card:nth-child(3) { animation-delay: 0.12s; }
+.card-grid .card:nth-child(4) { animation-delay: 0.16s; }
+.card-grid .card:nth-child(5) { animation-delay: 0.2s; }
+.card-grid .card:nth-child(6) { animation-delay: 0.24s; }
 
 .nav-btn {
   margin-top: 30rpx;
-  background-color: #007AFF;
-  color: #ffffff;
-  border-radius: 45rpx;
+  background: var(--btn-primary-gradient);
+  color: var(--btn-primary-text);
+  border-radius: var(--radius-pill);
   padding: 20rpx 60rpx;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 30rpx;
+  font-weight: 500;
+  width: 100%;
+  max-width: 300rpx;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  box-shadow: var(--btn-primary-shadow);
 }
 
 .nav-btn:active {
-  background-color: #0056b3;
+  transform: scale(0.98);
+  opacity: 0.9;
 }
 
 .welcome-message {
-  font-size: 28rpx;
+  font-size: 32rpx;
   color: var(--text-secondary);
   margin-bottom: 30rpx;
   transition: color 0.3s ease;
+  text-align: center;
+  font-weight: 500;
 }
 
 .dashboard-stats {
   display: flex;
   justify-content: space-between;
   margin-bottom: 40rpx;
+  gap: 20rpx;
 }
 
 .stat-card {
   flex: 1;
-  padding: 20rpx;
-  background: var(--bg-secondary);
-  border-radius: 10rpx;
+  padding: 30rpx;
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
   text-align: center;
-  margin: 0 10rpx;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: var(--card-shadow);
+  border: 1rpx solid var(--glass-stroke);
+  backdrop-filter: blur(10rpx);
+}
+
+.stat-card:hover {
+  transform: translateY(-3rpx);
+  box-shadow: var(--card-shadow-strong);
 }
 
 .stat-value {
   display: block;
-  font-size: 28rpx;
-  font-weight: bold;
-  color: var(--text-primary);
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--accent-primary);
   margin-bottom: 10rpx;
   transition: color 0.3s ease;
+  font-family: var(--font-display);
 }
 
 .stat-label {
-  font-size: 24rpx;
-  color: var(--text-tertiary);
+  font-size: 26rpx;
+  color: var(--text-secondary);
   transition: color 0.3s ease;
+  font-weight: 500;
 }
 
 .quick-actions {
@@ -87,9 +141,27 @@
 
 .section-title {
   display: block;
-  font-size: 30rpx;
-  font-weight: bold;
+  font-size: 34rpx;
+  font-weight: 700;
   margin-bottom: 20rpx;
   color: var(--text-primary);
   transition: color 0.3s ease;
+  text-align: center;
+  letter-spacing: 0.5rpx;
+}
+
+@media (max-width: 768px) {
+  .dashboard-stats {
+    flex-direction: column;
+    gap: 20rpx;
+  }
+  
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150rpx, 1fr));
+    gap: 16rpx;
+  }
+  
+  .page-heading {
+    font-size: 38rpx;
+  }
 }
