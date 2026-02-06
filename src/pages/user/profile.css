@@ -1,15 +1,22 @@
 .profile-container { 
-  padding: 32rpx;
+  padding: 40rpx 32rpx 64rpx;
   max-width: 820rpx;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18rpx;
 }
 
 .screen-title { 
-  font-size: 36rpx; 
+  font-size: 38rpx; 
   color: var(--text-primary); 
-  margin: 24rpx 0;
-  transition: color 0.3s ease;
+  margin: 12rpx 0;
+  transition: color 0.2s ease;
   font-family: var(--font-display);
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-field { 
@@ -17,12 +24,12 @@
 }
 
 .text-input { 
-  border: 1px solid var(--border-color); 
+  border: 1rpx solid var(--border-color); 
   border-radius: var(--radius-control); 
   padding: 16rpx;
   background: var(--card-bg-strong);
   color: var(--text-primary);
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .primary-button { 
@@ -32,7 +39,7 @@
   border-radius: var(--radius-pill); 
   padding: 16rpx; 
   margin-top: 16rpx;
-  transition: background-color 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--btn-primary-shadow);
 }
 
@@ -46,7 +53,7 @@
   border-radius: var(--radius-pill); 
   padding: 16rpx; 
   margin-top: 12rpx;
-  transition: background-color 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .danger-button:active {

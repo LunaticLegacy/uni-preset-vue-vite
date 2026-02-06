@@ -73,7 +73,14 @@
                           <text class="subtask-title">{{ subtask.title }}</text>
                           <text class="subtask-meta">{{ subtask.status }} · {{ subtask.priority }}</text>
                         </view>
-                        <button class="confirm-complete" @click.stop="confirmSubtaskComplete(subtask)">确认完成</button>
+                        <button
+                        class="confirm-complete"
+                        :class="{ done: isTaskCompleted(subtask) }"
+                        :disabled="isTaskCompleted(subtask)"
+                        @click.stop="confirmSubtaskComplete(subtask)"
+                      >
+                        {{ isTaskCompleted(subtask) ? '\u5df2\u5b8c\u6210' : '\u786e\u8ba4\u5b8c\u6210' }}
+                      </button>
                       </view>
                       <view v-if="subtask.description" class="subtask-desc">{{ subtask.description }}</view>
 
@@ -86,7 +93,14 @@
                               <text class="nested-subtask-title">{{ nested.title }}</text>
                               <text class="nested-subtask-meta">{{ nested.status }} · {{ nested.priority }}</text>
                             </view>
-                            <button class="confirm-complete small" @click.stop="confirmSubtaskComplete(nested)">确认完成</button>
+                            <button
+                              class="confirm-complete small"
+                              :class="{ done: isTaskCompleted(nested) }"
+                              :disabled="isTaskCompleted(nested)"
+                              @click.stop="confirmSubtaskComplete(nested)"
+                            >
+                              {{ isTaskCompleted(nested) ? '\u5df2\u5b8c\u6210' : '\u786e\u8ba4\u5b8c\u6210' }}
+                            </button>
                           </view>
                           <view v-if="nested.description" class="nested-subtask-desc">{{ nested.description }}</view>
 
@@ -99,7 +113,14 @@
                                   <text class="deep-nested-subtask-title">{{ deep.title }}</text>
                                   <text class="deep-nested-subtask-meta">{{ deep.status }} · {{ deep.priority }}</text>
                                 </view>
-                                <button class="confirm-complete small" @click.stop="confirmSubtaskComplete(deep)">确认完成</button>
+                                <button
+                                class="confirm-complete small"
+                                :class="{ done: isTaskCompleted(deep) }"
+                                :disabled="isTaskCompleted(deep)"
+                                @click.stop="confirmSubtaskComplete(deep)"
+                              >
+                                {{ isTaskCompleted(deep) ? '\u5df2\u5b8c\u6210' : '\u786e\u8ba4\u5b8c\u6210' }}
+                              </button>
                               </view>
                               <view v-if="deep.description" class="deep-nested-subtask-desc">{{ deep.description }}</view>
                             </view>

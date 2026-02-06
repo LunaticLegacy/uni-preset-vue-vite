@@ -1,7 +1,10 @@
 .page-root {
-  padding: 32rpx;
+  padding: 40rpx 32rpx 64rpx;
   max-width: 920rpx;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
 .page-card {
@@ -9,19 +12,19 @@
   border-radius: var(--radius-card);
   box-shadow: var(--card-shadow);
   overflow: hidden;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  border: 1rpx solid var(--glass-stroke);
-  backdrop-filter: blur(10rpx);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  border: 1rpx solid var(--border-color-subtle);
+  backdrop-filter: blur(12rpx);
 }
 
 [data-theme="dark"] .page-card {
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
 }
 
 .card-header {
   padding: 20rpx 24rpx;
-  border-bottom: 1rpx solid var(--glass-stroke);
-  transition: border-color 0.3s ease;
+  border-bottom: 1rpx solid var(--border-color-subtle);
+  transition: border-color 0.2s ease;
   background: var(--card-bg-strong);
 }
 

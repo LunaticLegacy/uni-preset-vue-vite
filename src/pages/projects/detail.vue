@@ -2,13 +2,19 @@
   <layout page-title="项目详情">
     <view class="detail-page">
       <!-- Tasks Section -->
-      <view class="tasks-section">
+      <view class="tasks-section" :class="{ collapsed: isTaskbarCollapsed }">
         <view class="page-root">
           <view class="page-card">
             <view class="card-header">
               <view class="header-title-section">
                 <text class="page-title">{{ projectName }}</text>
                 <text class="project-desc" v-if="projectDescription">{{ projectDescription }}</text>
+              </view>
+              <view class="taskbar-actions">
+                <text class="taskbar-count">{{ tasks.length }} &#20010;&#20219;&#21153;</text>
+                <button class="taskbar-toggle" @click="toggleTaskbar">
+                  {{ isTaskbarCollapsed ? '\u5c55\u5f00' : '\u6536\u8d77' }}
+                </button>
               </view>
             </view>
 
@@ -114,6 +120,7 @@
               v-model="userInput"
               placeholder="给 AI 发消息…（最多20000字符）"
               @input="onInputChange"
+              @keydown="onComposerKeydown"
               :style="{ height: textareaHeight + 'px' }"
             />
             <view v-if="userInput.length > 15000" class="char-counter">

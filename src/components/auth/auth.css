@@ -12,10 +12,10 @@
 .auth-card {
   width: 100%;
   max-width: 720rpx;
-  padding: 48rpx;
+  padding: 52rpx 48rpx;
   border-radius: var(--radius-card);
   background: var(--card-bg);
-  border: 1rpx solid var(--glass-stroke);
+  border: 1rpx solid var(--border-color-subtle);
   box-shadow: var(--card-shadow-strong);
   display: flex;
   flex-direction: column;
@@ -36,6 +36,10 @@
   color: var(--text-primary);
   font-family: var(--font-display);
   letter-spacing: 1rpx;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-row {
@@ -63,7 +67,7 @@
   padding: 6rpx 14rpx;
   border-radius: var(--radius-pill);
   border: 1rpx solid var(--border-color);
-  background: var(--card-bg-strong);
+  background: var(--bg-tertiary);
   color: var(--text-primary);
   font-size: 22rpx;
   min-width: 90rpx;

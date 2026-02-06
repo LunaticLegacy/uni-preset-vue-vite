@@ -1,5 +1,5 @@
-import { apiGet, apiPut } from '../../services/http.js'
-import { getProjectId } from '../../utils/storage.js'
+import { apiGet, apiPost } from '../../services/http.js'
+import { getProjectId, getToken } from '../../utils/storage.js'
 import Layout from '../../components/Layout.vue'
 import RecursiveSubtasks from '../../components/RecursiveSubtasks.vue'
 
@@ -14,7 +14,7 @@ export default {
       id: '',
       task: null,
       currentProject: null,
-      statuses: ['backlog', 'in_progress', 'done'],
+      statuses: ['backlog', 'todo', 'in_progress', 'blocked', 'done', 'cancelled'],
       priorities: [
         { label: 'low', value: 'low' },
         { label: 'medium', value: 'medium' },
@@ -33,12 +33,14 @@ export default {
     const res = await apiGet(`/tasks/${this.id}/`)
     if (res.statusCode === 200) {
       this.task = res.data.data
-      // 初始化日期格式
-      if (this.task.start_date) {
-        this.task.start_date = this.formatDateForInput(this.task.start_date)
+      // Normalize date fields for inputs
+      const startedAt = this.task.started_at || this.task.start_date
+      const dueAt = this.task.due_at || this.task.end_date
+      if (startedAt) {
+        this.task.start_date = this.formatDateForInput(startedAt)
       }
-      if (this.task.end_date) {
-        this.task.end_date = this.formatDateForInput(this.task.end_date)
+      if (dueAt) {
+        this.task.end_date = this.formatDateForInput(dueAt)
       }
     }
   },
@@ -95,6 +97,22 @@ export default {
         return dateStr
       }
     },
+    toIsoDateTime(dateStr) {
+      if (!dateStr) return ''
+      try {
+        const date = new Date(`${dateStr}T00:00:00`)
+        if (Number.isNaN(date.getTime())) return ''
+        return date.toISOString()
+      } catch (e) {
+        return ''
+      }
+    },
+    normalizeNumber(value) {
+      if (value === null || value === undefined || value === '') return undefined
+      const num = Number(value)
+      return Number.isFinite(num) ? num : undefined
+    },
+
 
     /**
      * 保存任务信息
@@ -108,16 +126,32 @@ export default {
         return
       }
 
-      const res = await apiPut(`/tasks/${this.id}/`, {
+      const payload = {
+        time: new Date().toISOString(),
+        token: getToken(),
         title: this.task.title,
         description: this.task.description,
         status: this.task.status,
         priority: this.task.priority,
-        assignee_id: this.task.assignee_id,
-        start_date: this.task.start_date,
-        end_date: this.task.end_date,
-        estimated_minutes: this.task.estimated_minutes
-      })
+        assignee_id: this.task.assignee_id
+      }
+
+      const startedAt = this.toIsoDateTime(this.task.start_date) || this.task.started_at
+      const dueAt = this.toIsoDateTime(this.task.end_date) || this.task.due_at
+      if (startedAt) payload.started_at = startedAt
+      if (dueAt) payload.due_at = dueAt
+
+      const estimatedMinutes = this.normalizeNumber(this.task.estimated_minutes)
+      if (estimatedMinutes !== undefined) payload.estimated_minutes = estimatedMinutes
+
+      const actualMinutes = this.normalizeNumber(this.task.actual_minutes)
+      if (actualMinutes !== undefined) payload.actual_minutes = actualMinutes
+
+      if (this.task.status === 'done') {
+        payload.completed_at = this.task.completed_at || new Date().toISOString()
+      }
+
+      const res = await apiPost(`/tasks/${this.id}/update/`, payload)
 
       if (res.statusCode === 200) {
         uni.showToast({

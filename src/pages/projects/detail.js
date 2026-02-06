@@ -32,6 +32,7 @@ export default {
       tasksLoading: false,
       tasksError: '',
       expandedTaskIds: new Set(),
+      isTaskbarCollapsed: false,
 
       userInput: '',
       scrollIntoId: '',
@@ -79,6 +80,9 @@ export default {
   },
 
   methods: {
+    toggleTaskbar() {
+      this.isTaskbarCollapsed = !this.isTaskbarCollapsed
+    },
     // 更新展开任务ID集合
     updateExpandedTaskIds(newExpandedTaskIds) {
       this.expandedTaskIds = newExpandedTaskIds
@@ -328,6 +332,16 @@ export default {
         const parsed = this.tryParseJson(cleaned)
         if (parsed) {
           jsonData = parsed
+        }
+      }
+
+      if (!jsonData) {
+        const fallbackText = this.extractJsonFromText(content || text)
+        if (fallbackText && fallbackText.trim()) {
+          const cleaned = this.cleanJsonStream(fallbackText)
+          let parsed = this.tryParseJson(cleaned)
+          if (!parsed) parsed = this.tryParseJson(this.makeJsonSnapshot(cleaned))
+          if (parsed) jsonData = parsed
         }
       }
 
@@ -612,8 +626,9 @@ export default {
         self.messages[aiIndex].thinking = thinkingText
 
         // JSON：按规则实时展示（字段齐了就显示）
-        if (jsonText && jsonText.trim()) {
-          const cleaned = self.cleanJsonStream(jsonText)
+        const liveJsonText = (jsonText && jsonText.trim()) ? jsonText : self.extractJsonFromText(visibleText)
+        if (liveJsonText && liveJsonText.trim()) {
+          const cleaned = self.cleanJsonStream(liveJsonText)
           const snapshot = self.makeJsonSnapshot(cleaned)
           const partialPlan = self.parsePartialTaskPlan(snapshot)
           if (partialPlan) {
@@ -677,9 +692,11 @@ export default {
           }
 
           // ✅ 最终 JSON 解析也别再绑 !hasChunks（否则 chunk 模式永远不做最终 parse）
-          if (jsonText && jsonText.trim()) {
-            const cleaned = self.cleanJsonStream(jsonText)
-            const parsed = self.tryParseJson(cleaned)
+          const finalJsonText = (jsonText && jsonText.trim()) ? jsonText : self.extractJsonFromText(visibleText)
+          if (finalJsonText && finalJsonText.trim()) {
+            const cleaned = self.cleanJsonStream(finalJsonText)
+            let parsed = self.tryParseJson(cleaned)
+            if (!parsed) parsed = self.tryParseJson(self.makeJsonSnapshot(cleaned))
             if (parsed) {
               // 将AI返回的JSON结构转换为前端显示结构
               const transformedTasks = Array.isArray(parsed.tasks)
@@ -735,27 +752,58 @@ export default {
     scrollToBottom() {
       this.scrollIntoId = `msg-${this.messages.length - 1}`
     },
+    onComposerKeydown(e) {
+      if (!e || e.isComposing) return
+      const key = e.key || ''
+      const isEnter = key === 'Enter' || e.keyCode === 13
+      if (!isEnter) return
+
+      const hasCtrl = !!(e.ctrlKey || e.metaKey)
+      if (hasCtrl) {
+        e.preventDefault()
+        const value = String(this.userInput || '')
+        const target = e.target || {}
+        const start = typeof target.selectionStart === 'number' ? target.selectionStart : value.length
+        const end = typeof target.selectionEnd === 'number' ? target.selectionEnd : start
+        const next = value.slice(0, start) + '\n' + value.slice(end)
+        this.userInput = next.slice(0, 20000)
+        this.onInputChange()
+
+        this.$nextTick(() => {
+          try {
+            if (target && typeof target.setSelectionRange === 'function') {
+              const pos = Math.min(start + 1, this.userInput.length)
+              target.setSelectionRange(pos, pos)
+            }
+          } catch (err) {}
+        })
+        return
+      }
+
+      e.preventDefault()
+      if (!String(this.userInput || '').trim()) return
+      this.sendMessage()
+    },
 
     onInputChange() {
       if (this.userInput.length > 20000) this.userInput = this.userInput.slice(0, 20000)
 
-      // 兼容：H5 用 scrollHeight；其他端近似估计
+      // Prefer scrollHeight in H5; fall back to line count.
       this.$nextTick(() => {
         try {
           if (typeof document !== 'undefined' && document.querySelector) {
             const el = document.querySelector('.composer-input')
             if (el) {
               const h = el.scrollHeight || 45
-              this.textareaHeight = Math.min(Math.max(h, 45), 200)
+              this.textareaHeight = Math.min(Math.max(h, 45), 280)
               return
             }
           }
         } catch (e) {}
 
-        // fallback：按行数估算
         const lines = String(this.userInput || '').split('\n').length
-        const h2 = 24 * Math.min(lines, 8) + 21
-        this.textareaHeight = Math.min(Math.max(h2, 45), 200)
+        const h2 = 24 * Math.min(lines, 12) + 21
+        this.textareaHeight = Math.min(Math.max(h2, 45), 280)
       })
     },
 
@@ -842,6 +890,23 @@ export default {
         return
       }
 
+      const normalizeNumber = (value) => {
+        if (value === null || value === undefined || value === '') return undefined
+        const num = Number(value)
+        return Number.isFinite(num) ? num : undefined
+      }
+
+      const normalizeDate = (value) => {
+        if (!value) return ''
+        try {
+          const date = new Date(String(value).includes('T') ? value : `${value}T00:00:00`)
+          if (Number.isNaN(date.getTime())) return ''
+          return date.toISOString()
+        } catch (e) {
+          return ''
+        }
+      }
+
       const payload = {
         time: new Date().toISOString(),
         token: getToken(),
@@ -849,7 +914,22 @@ export default {
         description: this.editingTask.description,
         priority: this.editingTask.priority,
         status: this.editingTask.status,
-        estimated_minutes: this.editingTask.estimated_minutes
+        assignee_id: this.editingTask.assignee_id
+      }
+
+      const startedAt = normalizeDate(this.editingTask.start_date || this.editingTask.started_at)
+      const dueAt = normalizeDate(this.editingTask.end_date || this.editingTask.due_at)
+      if (startedAt) payload.started_at = startedAt
+      if (dueAt) payload.due_at = dueAt
+
+      const estimatedMinutes = normalizeNumber(this.editingTask.estimated_minutes)
+      if (estimatedMinutes !== undefined) payload.estimated_minutes = estimatedMinutes
+
+      const actualMinutes = normalizeNumber(this.editingTask.actual_minutes)
+      if (actualMinutes !== undefined) payload.actual_minutes = actualMinutes
+
+      if (payload.status === 'done') {
+        payload.completed_at = this.editingTask.completed_at || new Date().toISOString()
       }
 
       const url = `${API_BASE_URL.replace(/\/$/, '')}/tasks/${this.editingTask.task_id}/update/`
@@ -888,6 +968,42 @@ export default {
     // =========================
     // JSON 流处理：清理/补全/解析（按“字段齐了就显示”）
     // =========================
+    extractJsonFromText(text) {
+      const s = String(text || '')
+      if (!s.trim()) return ''
+
+      const fenceMatch = s.match(/```(?:json)?\s*([\s\S]*?)```/i)
+      if (fenceMatch && fenceMatch[1]) return fenceMatch[1]
+
+      const start = s.search(/[\{\[]/)
+      if (start === -1) return ''
+
+      let inStr = false
+      let esc = false
+      const stack = []
+
+      for (let i = start; i < s.length; i++) {
+        const ch = s[i]
+        if (inStr) {
+          if (esc) { esc = false; continue }
+          if (ch === '\\') { esc = true; continue }
+          if (ch === '"') inStr = false
+          continue
+        }
+        if (ch === '"') { inStr = true; continue }
+        if (ch === '{') stack.push('}')
+        else if (ch === '[') stack.push(']')
+        else if (ch === '}' || ch === ']') {
+          if (stack.length && stack[stack.length - 1] === ch) {
+            stack.pop()
+            if (!stack.length) return s.slice(start, i + 1)
+          }
+        }
+      }
+
+      return s.slice(start)
+    },
+
     cleanJsonStream(text) {
       let out = String(text || '')
       // 兼容某些 SSE 风格 data:
@@ -913,12 +1029,14 @@ export default {
 
     isTaskReady(task) {
       if (!task) return false
+      const hasEstimate = task.estimated_minutes !== undefined || (
+        task.estimated_time !== undefined && task.estimated_time_unit !== undefined
+      )
       return (
         task.title !== undefined &&
         task.description !== undefined &&
-        task.estimated_time !== undefined &&
-        task.estimated_time_unit !== undefined &&
-        task.priority !== undefined
+        task.priority !== undefined &&
+        hasEstimate
       )
     },
 
@@ -1091,6 +1209,7 @@ export default {
           description: undefined,
           estimated_time: undefined,
           estimated_time_unit: undefined,
+          estimated_minutes: undefined,
           priority: undefined,
           subtasks: []
         }
@@ -1112,6 +1231,10 @@ export default {
             const vr = parseString()
             if (!vr.ok) return { ok: true, value: task, complete: false }
             task[key] = vr.value
+          } else if (key === 'estimated_minutes') {
+            const nr = parseNumber()
+            if (!nr.ok) return { ok: true, value: task, complete: false }
+            task.estimated_minutes = nr.value
           } else if (key === 'estimated_time') {
             const nr = parseNumber()
             if (!nr.ok) return { ok: true, value: task, complete: false }

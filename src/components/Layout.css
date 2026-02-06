@@ -3,7 +3,7 @@
   min-height: 100vh;
   background-color: var(--bg-secondary);
   background-image: var(--page-gradient), var(--page-pattern);
-  background-size: cover, 220rpx 220rpx;
+  background-size: cover, 240rpx 240rpx;
   background-repeat: no-repeat, repeat;
   font-family: var(--font-body);
   position: relative;
@@ -12,8 +12,8 @@
 .sidebar {
   width: 300rpx;
   background: var(--sidebar-bg);
-  border-right: 1rpx solid var(--glass-stroke);
-  padding: 24rpx;
+  border-right: 1rpx solid var(--border-color-subtle);
+  padding: 28rpx 20rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -21,16 +21,17 @@
   position: fixed;
   height: 100vh;
   overflow-y: auto;
-  transition: width 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: var(--card-shadow);
+  transition: width 0.3s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8rpx 20rpx -18rpx rgba(31, 35, 41, 0.2);
   z-index: 100;
-  backdrop-filter: blur(16rpx);
+  backdrop-filter: blur(8rpx);
+  border-radius: 0;
 }
 
 [data-theme="dark"] .sidebar {
   background: var(--sidebar-bg);
-  border-right-color: var(--glass-stroke);
-  box-shadow: var(--card-shadow);
+  border-right-color: var(--border-color-subtle);
+  box-shadow: 0 8rpx 20rpx -18rpx rgba(0, 0, 0, 0.55);
 }
 
 .sidebar.collapsed {
@@ -38,7 +39,7 @@
 }
 
 .main-area.with-sidebar-collapsed {
-  margin-left: 48px; /* 96rpx = 48px */
+  margin-left: 96rpx;
 }
 
 .collapse-toggle {
@@ -49,7 +50,7 @@
   width: 28rpx;
   height: 28rpx;
   background: var(--card-bg-strong);
-  border: 1rpx solid var(--glass-stroke);
+  border: 1rpx solid var(--border-color-subtle);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -95,13 +96,13 @@
   display: flex;
   align-items: center;
   padding: 16rpx;
-  border-radius: 16rpx;
+  border-radius: var(--radius-control);
   color: var(--text-secondary);
-  background: rgba(255, 255, 255, 0.55);
-  border: 1rpx solid var(--glass-stroke);
+  background: var(--card-bg);
+  border: 1rpx solid var(--border-color-subtle);
   text-align: left;
   white-space: nowrap;
-  transition: all 0.25s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   font-weight: 500;
   margin-bottom: 2rpx;
   backdrop-filter: blur(8rpx);
@@ -109,27 +110,30 @@
 
 [data-theme="dark"] .sidebar-link {
   color: var(--text-secondary);
-  background: rgba(20, 18, 16, 0.7);
+  background: var(--card-bg);
 }
 
 .sidebar-link:active {
   background: var(--bg-tertiary);
   color: var(--accent-primary);
-  border-color: rgba(231, 104, 74, 0.4);
-  transform: translateY(-2rpx);
-  box-shadow: var(--card-shadow);
+  border-color: var(--accent-primary);
+  transform: translateY(-1rpx);
+  box-shadow: 0 6rpx 16rpx -12rpx rgba(31, 35, 41, 0.2);
 }
 
 .sidebar-link.active {
   background: var(--bg-tertiary);
   color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: none;
 }
 
 .icon {
-  font-size: 36rpx;
+  font-size: 32rpx;
   min-width: 36rpx;
   margin-right: 16rpx;
   transition: transform 0.2s ease;
+  color: var(--accent-primary);
 }
 
 .link-text {
@@ -164,23 +168,23 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 150px; /* 300rpx = 150px */
+  margin-left: 300rpx;
 }
 
 .topbar {
-  height: 96rpx;
+  height: 88rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24rpx;
+  padding: 0 28rpx;
   background: var(--topbar-bg);
-  border-bottom: 1rpx solid var(--glass-stroke);
+  border-bottom: 1rpx solid var(--border-color-subtle);
   position: sticky;
   top: 0;
   z-index: 90;
-  transition: background 0.3s ease, border-color 0.3s ease;
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(16rpx);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6rpx 18rpx -16rpx rgba(31, 35, 41, 0.2);
+  backdrop-filter: blur(8rpx);
 }
 
 .topbar-title {
@@ -204,7 +208,7 @@
   font-size: 24rpx;
   padding: 6rpx 12rpx;
   border-radius: var(--radius-pill);
-  background: var(--bg-tertiary);
+  background: var(--card-bg-strong);
   border: 1rpx solid var(--border-color-subtle);
 }
 
@@ -243,7 +247,7 @@
 .theme-toggle {
   padding: 8rpx 16rpx;
   background: var(--card-bg-strong);
-  border: 1rpx solid var(--glass-stroke);
+  border: 1rpx solid var(--border-color-subtle);
   border-radius: var(--radius-pill);
   color: var(--text-primary);
   font-size: 24rpx;
@@ -265,10 +269,10 @@
 }
 
 .content-body {
-  padding: 24rpx;
+  padding: 28rpx 32rpx 96rpx;
   padding-bottom: 80px;
   transition: padding-left 0.3s ease;
-  min-height: calc(100vh - 96rpx);
+  min-height: calc(100vh - 88rpx);
   background: transparent;
   animation: fade-up 0.5s ease both;
 }
@@ -286,7 +290,7 @@
 .auth-modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 10, 8, 0.45);
+  background: rgba(7, 27, 26, 0.45);
   backdrop-filter: blur(8rpx);
 }
 

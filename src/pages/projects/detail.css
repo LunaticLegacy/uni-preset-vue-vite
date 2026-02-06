@@ -2,7 +2,7 @@
 .detail-page {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 50px);
+  min-height: calc(100vh - 88rpx);
 }
 
 .tasks-section {
@@ -10,15 +10,48 @@
   max-height: 50%;
   overflow-y: auto;
   background: transparent;
-  border-bottom: 1px solid var(--border-color);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  border-bottom: 1rpx solid var(--border-color);
+  transition: background 0.2s ease, border-color 0.2s ease, max-height 0.2s ease;
+}
+
+.tasks-section.collapsed {
+  max-height: 64rpx;
+  overflow: hidden;
+}
+
+.tasks-section.collapsed .page-root {
+  padding: 12rpx 24rpx;
+}
+
+.tasks-section.collapsed .card-header {
+  padding: 12rpx 20rpx;
+  border-bottom: none;
+}
+
+.tasks-section.collapsed .project-desc {
+  display: none;
+}
+
+.tasks-section.collapsed .page-title {
+  font-size: 28rpx;
+}
+
+.tasks-section.collapsed .card-body {
+  display: none;
+}
+
+.tasks-section.collapsed .page-card {
+  box-shadow: none;
 }
 
 /* Task list styles */
 .page-root {
-  padding: 32rpx;
+  padding: 40rpx 32rpx 64rpx;
   max-width: 1240rpx;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
 }
 
 .page-card {
@@ -26,13 +59,13 @@
   border-radius: var(--radius-card);
   box-shadow: var(--card-shadow);
   overflow: hidden;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  border: 1rpx solid var(--glass-stroke);
-  backdrop-filter: blur(10rpx);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+  border: 1rpx solid var(--border-color-subtle);
+  backdrop-filter: blur(12rpx);
 }
 
 [data-theme="dark"] .page-card {
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
 }
 
 .card-header {
@@ -40,11 +73,32 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 20rpx 24rpx;
-  border-bottom: 1rpx solid var(--glass-stroke);
+  border-bottom: 1rpx solid var(--border-color-subtle);
   flex-wrap: wrap;
   gap: 16rpx;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease;
   background: var(--card-bg-strong);
+}
+
+.taskbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.taskbar-count {
+  font-size: 24rpx;
+  color: var(--text-tertiary);
+}
+
+.taskbar-toggle {
+  padding: 6rpx 16rpx;
+  border-radius: var(--radius-pill);
+  border: 1rpx solid var(--border-color);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  font-size: 22rpx;
+  box-shadow: var(--btn-secondary-shadow);
 }
 
 .header-title-section {
@@ -77,10 +131,10 @@
 }
 
 .task-item {
-  border: 1rpx solid var(--glass-stroke);
+  border: 1rpx solid var(--border-color-subtle);
   border-radius: 16rpx;
   overflow: hidden;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-shadow: var(--card-shadow);
   background: var(--card-bg);
   animation: fade-up 0.5s ease both;
@@ -413,12 +467,12 @@
   left: 0;
   right: 0;
   background: var(--card-bg);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
   z-index: 100;
   margin: 0;
-  box-shadow: var(--card-shadow);
+  box-shadow: 0 -6rpx 18rpx -16rpx rgba(31, 35, 41, 0.3);
   padding: 10px 12px;
-  border-top: 1px solid var(--glass-stroke);
+  border-top: 1px solid var(--border-color-subtle);
   display: flex;
   gap: 10px;
   align-items: flex-end;
@@ -433,12 +487,12 @@
 
 /* 当侧边栏展开时 */
 .composer.with-sidebar {
-  left: 150px; /* 300rpx = 150px */
+  left: 300rpx;
 }
 
 /* 当侧边栏收起时 */
 .composer.with-sidebar-collapsed {
-  left: 48px; /* 96rpx = 48px */
+  left: 96rpx;
 }
 
 .chat-padding-top {
@@ -933,28 +987,39 @@
 
 .composer-input {
   flex: 1;
-  min-height: 45px;
-  max-height: 200px;
-  min-width: 90%;
-  max-width: 90%;
-  border-radius: 14px;
+  min-height: 46px;
+  max-height: 280px;
+  width: 100%;
+  border-radius: var(--radius-control);
   border: 1px solid var(--border-color);
-  background: var(--card-bg-strong);
+  background: var(--bg-primary);
   color: var(--text-primary);
-  padding: 10px 12px;
+  padding: 10px 14px;
   font-size: 14px;
+  line-height: 1.6;
   font-family: inherit;
   resize: none;
   overflow-y: auto;
   box-sizing: border-box;
-  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+  caret-color: var(--accent-primary);
+}
+
+.composer-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.composer-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 [data-theme="dark"] .composer-input {
-  background: var(--card-bg-strong);
+  background: var(--bg-secondary);
   border-color: var(--border-color);
   color: var(--text-primary);
-  caret-color: var(--text-primary);
+  caret-color: var(--accent-primary);
 }
 
 .char-counter {

@@ -1,4 +1,6 @@
 import Layout from "../../components/Layout.vue"
+import { apiPost } from '../../services/http.js'
+import { getCurrentWorkspace, getProjectId, getToken } from '../../utils/storage.js'
 
 const POMODORO_MODES = {
   '25_5': { work: 25, break: 5 },
@@ -12,11 +14,21 @@ export default {
       pomodoroIsRunning: false,
       pomodoroIsBreak: false,
       pomodoroRemainingSec: 25 * 60,
-      pomodoroTimerId: null
+      pomodoroTimerId: null,
+      taskbarTasks: [],
+      taskbarLoading: false,
+      taskbarError: '',
+      currentProject: null,
+      workspace: null
     }
   },
   onLoad() {
     this.initPomodoro()
+  },
+  onShow() {
+    this.workspace = getCurrentWorkspace()
+    this.currentProject = getProjectId()
+    this.fetchTaskbar()
   },
   onHide() {
     this.pausePomodoro()
@@ -86,6 +98,46 @@ export default {
         clearInterval(this.pomodoroTimerId)
         this.pomodoroTimerId = null
       }
+    },
+    async fetchTaskbar() {
+      this.taskbarLoading = true
+      this.taskbarError = ''
+      this.taskbarTasks = []
+      if (!this.workspace || !this.workspace.id) {
+        this.taskbarLoading = false
+        this.taskbarError = '\u8bf7\u5148\u9009\u62e9\u5de5\u4f5c\u7a7a\u95f4'
+        return
+      }
+      try {
+        const res = await apiPost('/tasks/list', {
+          time: new Date().toISOString(),
+          token: getToken(),
+          workspace_id: this.workspace.id,
+          project_id: this.currentProject?.id,
+          subtasks: null
+        })
+        if (res.statusCode === 200) {
+          const taskTreeList = res.data.data || []
+          this.taskbarTasks = taskTreeList
+            .map(tree => tree?.task)
+            .filter(Boolean)
+            .slice(0, 10)
+        } else {
+          this.taskbarError = res?.data?.message || '\u52a0\u8f7d\u5931\u8d25'
+        }
+      } catch (e) {
+        this.taskbarError = '\u7f51\u7edc\u9519\u8bef'
+      } finally {
+        this.taskbarLoading = false
+      }
+    },
+    goToTasks() {
+      uni.navigateTo({ url: '/pages/tasks/index' })
+    },
+    openTask(task) {
+      const taskId = task?.id || task?.task_id
+      if (!taskId) return
+      uni.navigateTo({ url: `/pages/tasks/detail?id=${taskId}` })
     }
   }
 }

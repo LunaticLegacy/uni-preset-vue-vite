@@ -1,21 +1,111 @@
 .pomodoro-page {
-  padding: 32rpx;
+  padding: 40rpx 32rpx 64rpx;
   background: transparent;
   color: var(--text-primary);
-  min-height: calc(100vh - 96rpx);
-  transition: background 0.3s ease, color 0.3s ease;
+  min-height: calc(100vh - 88rpx);
+  transition: background 0.2s ease, color 0.2s ease;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 24rpx;
   align-items: center;
+}
+
+.pomodoro-taskbar {
+  width: 100%;
+  max-width: 900rpx;
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  border: 1rpx solid var(--border-color-subtle);
+  padding: 20rpx 24rpx;
+  box-shadow: var(--card-shadow);
+}
+
+.taskbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.taskbar-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.taskbar-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.taskbar-subtitle {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.taskbar-action {
+  padding: 8rpx 18rpx;
+  border-radius: var(--radius-pill);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1rpx solid var(--border-color);
+  font-size: 24rpx;
+  box-shadow: var(--btn-secondary-shadow);
+}
+
+.taskbar-list {
+  margin-top: 14rpx;
+  white-space: nowrap;
+}
+
+.taskbar-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  border-radius: var(--radius-pill);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1rpx solid var(--border-color-subtle);
+  font-size: 24rpx;
+  margin-right: 12rpx;
+  box-shadow: 0 6rpx 14rpx -12rpx rgba(31, 35, 41, 0.2);
+  cursor: pointer;
+}
+
+.taskbar-chip-title {
+  font-weight: 600;
+  max-width: 260rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.taskbar-chip-status {
+  font-size: 22rpx;
+  color: var(--text-tertiary);
+}
+
+.taskbar-chip.muted {
+  color: var(--text-secondary);
+  background: var(--card-bg-strong);
+}
+
+.taskbar-chip.error {
+  color: var(--accent-error);
+  background: rgba(245, 63, 63, 0.08);
+  border-color: rgba(245, 63, 63, 0.2);
 }
 
 .pomodoro-card {
   background: var(--card-bg);
   border-radius: var(--radius-card);
-  border: 1rpx solid var(--glass-stroke);
+  border: 1rpx solid var(--border-color-subtle);
   padding: 40rpx;
   box-shadow: var(--card-shadow);
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   max-width: 500rpx;
   width: 100%;
   text-align: center;
@@ -130,7 +220,11 @@
 @media (max-width: 768px) {
   .pomodoro-page {
     padding: 16rpx;
-    align-items: flex-start;
+    align-items: stretch;
+  }
+
+  .pomodoro-taskbar {
+    padding: 16rpx;
   }
 
   .pomodoro-card {

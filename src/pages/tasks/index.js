@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiPut } from '../../services/http.js'
+import { apiGet, apiPost } from '../../services/http.js'
 import { getCurrentWorkspace, getProjectId, getUserId, getToken } from '../../utils/storage.js'
 import { formatTimeFromMinutes } from '../../utils/time.js'
 import Layout from '../../components/Layout.vue'
@@ -175,6 +175,15 @@ export default {
       const key = this.getExpandKey(parentId, taskId)
       return this.expandedTaskIds.has(key)
     },
+    isTaskCompleted(task) {
+      return task?.status === 'done'
+    },
+    hasIncompleteSubtasks(task) {
+      if (!task?.subtasks || !Array.isArray(task.subtasks) || task.subtasks.length === 0) {
+        return false
+      }
+      return task.subtasks.some(st => st?.status !== 'done' || this.hasIncompleteSubtasks(st))
+    },
 
     async confirmSubtaskComplete(task) {
       const taskId = task?.id || task?.task_id
@@ -186,30 +195,36 @@ export default {
         uni.showToast({ title: '该任务已完成', icon: 'none' })
         return
       }
+      if (this.hasIncompleteSubtasks(task)) {
+        uni.showToast({ title: '请先完成子任务', icon: 'none' })
+        return
+      }
 
       const prevStatus = task.status
+      const prevCompletedAt = task.completed_at
       task.status = 'done'
+      const completedAt = new Date().toISOString()
+      task.completed_at = completedAt
 
       try {
-        const res = await apiPut(`/tasks/${taskId}/`, {
-          title: task.title,
-          description: task.description,
+        const res = await apiPost(`/tasks/${taskId}/update/`, {
+          time: new Date().toISOString(),
+          token: getToken(),
           status: 'done',
-          priority: task.priority,
-          assignee_id: task.assignee_id,
-          start_date: task.start_date,
-          end_date: task.end_date,
-          estimated_minutes: task.estimated_minutes
+          completed_at: completedAt
         })
 
         if (res.statusCode === 200) {
           uni.showToast({ title: '已确认完成', icon: 'success' })
         } else {
+          
           task.status = prevStatus
+          task.completed_at = prevCompletedAt
           uni.showToast({ title: res?.data?.message || '确认完成失败', icon: 'none' })
         }
       } catch (err) {
         task.status = prevStatus
+        task.completed_at = prevCompletedAt
         uni.showToast({ title: '网络错误', icon: 'none' })
       }
     },
